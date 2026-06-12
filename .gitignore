@@ -1,0 +1,59 @@
+# .NET / C#
+[Bb]in/
+[Oo]bj/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.userprefs
+*.dbmdl
+*.jsproj.user
+*.sqlproj.user
+*.userprefs
+*.btp.user
+.vs/
+.vscode/
+# Except for recommended vscode files
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# JetBrains (Rider)
+.idea/
+*.sln.DotSettings.user
+
+# Node.js / React (Web)
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.eslintcache
+.stylelintcache
+.vite-inspect
+
+# Environment Variables
+.env
+
+# Logs and Databases
+*.log
+logs/
+publish/
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# IDEs / OS
+*.ntvs*
+*.njsproj
+*.sw?
+.DS_Store
+Thumbs.db
+
