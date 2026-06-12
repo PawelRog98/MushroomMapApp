@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DotNetEnv" Version="3.2.0" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="Hangfire" Version="1.8.23" />
+        <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
+        <PackageReference Include="Hangfire.Core" Version="1.8.23" />
+        <PackageReference Include="Hangfire.Dashboard.BasicAuthorization" Version="1.0.2" />
+        <PackageReference Include="Hangfire.NetCore" Version="1.8.23" />
+        <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1" />
+        <PackageReference Include="MediatR" Version="14.1.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="11.0.0-preview.4.26230.115" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+        <PackageReference Include="StackExchange.Redis" Version="3.0.47-preview" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Features\Jobs\Recurring\" />
+      <Folder Include="Features\Jobs\Triggered\" />
+    </ItemGroup>
+
+</Project>

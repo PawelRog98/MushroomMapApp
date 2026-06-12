@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{52292166-22B1-43B2-B06C-596D98B9215B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{65BDCB41-7BEE-4B24-B20A-BE0A51DC214C}"
+	ProjectSection(SolutionItems) = preProject
+		tools\migrator-linux.sh = tools\migrator-linux.sh
+		tools\migrator.bat = tools\migrator.bat
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{776A5DB9-AC99-4E44-A80C-9C17F3C9857A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MushroomMapApp", "src\MushroomMapApp\MushroomMapApp.csproj", "{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MushroomMapApp.Migrator", "src\MushroomMapApp.Migrator\MushroomMapApp.Migrator.csproj", "{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0} = {776A5DB9-AC99-4E44-A80C-9C17F3C9857A}
+		{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2} = {776A5DB9-AC99-4E44-A80C-9C17F3C9857A}
+	EndGlobalSection
+EndGlobal
