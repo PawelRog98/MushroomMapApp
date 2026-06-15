@@ -20,12 +20,18 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        const data = response.data?.value ?? response.data;
+        if (data && typeof data === "object" && "success" in data && !data.success) {
+            return Promise.reject(data);
+        }
+        return { ...response, data };
+    },
     async (error) => {
         if (error.response?.status === 401) {
             useAuthStore.getState().clearAuth();
         }
-        return Promise.reject(error);
+        return Promise.reject(error.response?.data?.value ?? error.response?.data ?? error);
     },
 );
 

@@ -5,11 +5,11 @@ import type { LoginFormValues } from "../types";
 
 export const useLogin = () => {
     const setAuth = useAuthStore((state) => state.setAuth);
+return useMutation({
+    mutationFn: (data: LoginFormValues) => authApi.login(data),
+    onSuccess: (data) => {
+        setAuth(data);
+    },
+});
 
-    return useMutation({
-        mutationFn: (data: LoginFormValues) => authApi.login(data),
-        onSuccess: (data) => {
-            setAuth(data);
-        },
-    });
 };

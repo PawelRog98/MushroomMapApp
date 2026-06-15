@@ -9,9 +9,12 @@ public class InitializeDatabase : Migration
     {
         IfDatabase("postgresql")
             .Execute.Sql("CREATE EXTENSION IF NOT EXISTS \"pgcrypto\";");
-        
+
         IfDatabase("postgresql")
             .Execute.Sql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";");
+
+        IfDatabase("postgresql")
+            .Execute.Sql("CREATE EXTENSION IF NOT EXISTS \"postgis\";");
 
         if (!Schema.Table("Roles").Exists())
         {

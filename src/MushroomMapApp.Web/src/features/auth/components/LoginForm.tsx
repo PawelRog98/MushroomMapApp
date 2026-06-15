@@ -44,7 +44,9 @@ export const LoginForm = ({ onToggleMode }: { onToggleMode: () => void }) => {
                     {error && (
                         <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 rounded-md">
                             <AlertCircle className="h-4 w-4" />
-                            <span>Invalid email or password</span>
+                            <span>
+                                {(error as any)?.message || "Login failed. Please check your credentials."}
+                            </span>
                         </div>
                     )}
                     <div className="space-y-2">
