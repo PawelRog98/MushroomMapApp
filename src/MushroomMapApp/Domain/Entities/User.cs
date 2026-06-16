@@ -7,8 +7,9 @@ public class User : ICommonData
     public User()
     {
         Tokens = new HashSet<Token>();
+        Locations = new HashSet<Location>();
     }
-    
+
     public long Id { get; set; }
     public Guid PublicId { get; set; }
     public string PublicNick { get; set; } = string.Empty;
@@ -23,6 +24,7 @@ public class User : ICommonData
     public virtual Role Role { get; set; } = null!;
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? ModifiedAtUtc { get; set; }
-    
-    public ICollection<Token> Tokens { get; set; } 
+
+    public ICollection<Token> Tokens { get; set; }
+    public ICollection<Location> Locations { get; set; }
 }

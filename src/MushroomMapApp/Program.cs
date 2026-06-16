@@ -13,8 +13,8 @@ using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Interfaces;
 using MushroomMapApp.Domain.Models;
 using MushroomMapApp.Features.Common.Behaviors;
-using MushroomMapApp.Features.Users.Login;
-using MushroomMapApp.Features.Users.Register;
+using MushroomMapApp.Features.Users;
+using MushroomMapApp.Features.Locations;
 using MushroomMapApp.Infrastructure.Middlewares;
 using MushroomMapApp.Infrastructure.Services;
 using MushroomMapApp.Shared.Response;
@@ -96,7 +96,7 @@ builder.Services.AddHangfire(conf =>
     conf.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
-        .UsePostgreSqlStorage(options => 
+        .UsePostgreSqlStorage(options =>
             options.UseNpgsqlConnection(connectionString), new PostgreSqlStorageOptions
             {
                 QueuePollInterval = TimeSpan.FromSeconds(5),
@@ -114,7 +114,7 @@ builder.Services.AddHangfireServer(options =>
 });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(connectionString, o => o.UseNetTopologySuite()));
 
 
 #endregion
@@ -230,7 +230,7 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
     DarkModeEnabled = true
 });
 
-app.MapRegisterEndpoint();
-app.MapLoginEndpoint();
+app.MapUsersEndpoints();
+app.MapLocationsEndpoints();
 
 app.Run();
