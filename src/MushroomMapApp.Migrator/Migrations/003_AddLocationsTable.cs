@@ -29,8 +29,8 @@ public class AddLocationsTable : Migration
                 .OnTable("Locations").OnColumn("PublicId").Ascending()
                 .WithOptions().Unique();
 
-            /*IfDatabase("postgresql")
-                .Execute.Sql("CREATE INDEX \"IX_Locations_Coordinates\" ON \"Locations\" USING GIST (\"Coordinates\");");*/
+            IfDatabase("postgresql")
+                .Execute.Sql("CREATE INDEX \"IX_Locations_Coordinates\" ON \"Locations\" USING GIST (\"Coordinates\");");
         }
 
     }
@@ -45,8 +45,8 @@ public class AddLocationsTable : Migration
             IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
                 .Delete.Index("IX_Locations_PublicId").OnTable("Locations");
 
-            /*IfDatabase("postgresql")
-                .Execute.Sql("DROP INDEX IF EXISTS \"IX_Locations_Coordinates\";");*/
+            IfDatabase("postgresql")
+                .Execute.Sql("DROP INDEX IF EXISTS \"IX_Locations_Coordinates\";");
 
             Delete.Table("Locations");
         }

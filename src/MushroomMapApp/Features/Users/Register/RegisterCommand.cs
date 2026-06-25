@@ -57,7 +57,7 @@ public class Handler : IRequestHandler<Command, Unit>
                 PublicNick = command.Register.PublicNick,
                 FirstName = command.Register.FirstName,
                 LastName = command.Register.LastName,
-                DateOfBirth = command.Register.DateOfBirth!.Value,
+                DateOfBirth = DateTime.SpecifyKind(command.Register.DateOfBirth!.Value, DateTimeKind.Utc),
                 RoleId = defaultRole.Id,
                 IsEmailConfirmed = false
             };

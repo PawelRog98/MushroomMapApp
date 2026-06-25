@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Token> Tokens => Set<Token>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<Reaction> Reactions => Set<Reaction>();
+    public DbSet<ReactionType> ReactionTypes => Set<ReactionType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

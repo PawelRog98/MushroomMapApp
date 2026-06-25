@@ -23,7 +23,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .HasColumnType("geometry(Point, 4326)");
 
         builder.HasOne(x => x.CreatedBy)
-            .WithMany()
+            .WithMany(u => u.Locations)
             .HasForeignKey(x => x.CreatedById)
             .OnDelete(DeleteBehavior.Restrict);
 

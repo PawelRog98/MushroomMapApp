@@ -15,18 +15,18 @@ public class DbSeeder
         _context = context;
         _passwordHasher = passwordHasher;
     }
-    
-    
+
+
     public async Task SeedAsync()
     {
         await DbHealtCheck();
-        
+
         if (!await _context.Roles.AnyAsync())
         {
             await _context.Roles.AddRangeAsync(GetRoles());
             await _context.SaveChangesAsync();
         }
-        
+
         if (!await _context.Users.AnyAsync())
         {
             var adminRole = await _context.Roles
@@ -38,8 +38,14 @@ public class DbSeeder
             await _context.Users.AddRangeAsync(GetUsers(adminRole.Id));
             await _context.SaveChangesAsync();
         }
+
+        if (!await _context.ReactionTypes.AnyAsync())
+        {
+            await _context.ReactionTypes.AddRangeAsync(GetReactionTypes());
+            await _context.SaveChangesAsync();
+        }
     }
-    
+
     private IEnumerable<Role> GetRoles()
     {
         return new List<Role>()
@@ -79,6 +85,43 @@ public class DbSeeder
         }
 
         return users;
+    }
+
+    private IEnumerable<ReactionType> GetReactionTypes()
+    {
+        var reactionTypes = new List<ReactionType>()
+        {
+            new ReactionType
+            {
+                Key = "like",
+                Name = "Like",
+                Icon = "👍",
+                CreatedAtUtc = DateTime.UtcNow
+            },
+            new ReactionType
+            {
+                Key = "dislike",
+                Name = "Dislike",
+                Icon = "👎",
+                CreatedAtUtc = DateTime.UtcNow
+            },
+            new ReactionType
+            {
+                Key = "love",
+                Name = "Love",
+                Icon = "❤️",
+                CreatedAtUtc = DateTime.UtcNow
+            },
+            new ReactionType
+            {
+                Key = "mushroom",
+                Name = "Mushroom",
+                Icon = "🍄",
+                CreatedAtUtc = DateTime.UtcNow
+            }
+        };
+
+        return reactionTypes;
     }
 
     /*private async Task SeedRolesAsync(AppDbContext context)
@@ -121,7 +164,7 @@ public class DbSeeder
             await context.SaveChangesAsync();
         }
     }*/
-    
+
     private async Task DbHealtCheck()
     {
         int maxRetries = 12;

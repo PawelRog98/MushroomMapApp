@@ -9,13 +9,7 @@ public class Reaction
     public Location Location { get; set; }
     public long UserId { get; set; }
     public User User { get; set; }
-    public string ReactionTypeValue { get; set; }
+    public long ReactionTypeId { get; set; }
+    public ReactionType ReactionType { get; set; }
     public DateTime CreatedAtUtc { get; set; }
-
-    [NotMapped]
-    public ReactionEnum ReactionType
-    {
-        get => Enum.TryParse<ReactionEnum>(ReactionTypeValue, out var result) ? result : default;
-        set => ReactionTypeValue = value.ToString();
-    }
 }
