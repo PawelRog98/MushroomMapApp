@@ -21,6 +21,7 @@ using MushroomMapApp.Shared.Response;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
+using MushroomMapApp.Features.Reactions;
 using Npgsql;
 using StackExchange.Redis;
 
@@ -232,5 +233,6 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 
 app.MapUsersEndpoints();
 app.MapLocationsEndpoints();
+app.MapReactionsEndpoints();
 
 app.Run();

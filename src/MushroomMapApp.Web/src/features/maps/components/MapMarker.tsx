@@ -1,6 +1,7 @@
 import { Marker, Popup } from "react-leaflet";
 import { Trash2 } from "lucide-react";
 import type { MapMarkerProps } from "../types";
+import { ReactionRow } from "../../reactions/components/ReactionRow";
 
 export const MapMarker = ({ location, index, onDelete }: MapMarkerProps) => {
     return (
@@ -21,6 +22,7 @@ export const MapMarker = ({ location, index, onDelete }: MapMarkerProps) => {
                         </button>
                     </div>
                     <p className="text-sm text-mushroom-600">{location.text}</p>
+                    <ReactionRow locationPublicId={location.publicId!}/>
                 </div>
             </Popup>
         </Marker>

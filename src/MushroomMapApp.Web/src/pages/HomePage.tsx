@@ -1,96 +1,41 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
-import { useAuthStore } from "../store/auth-store";
 import { useLocationStore } from "../store/locations-store";
 import { MapPin, Plus } from "lucide-react";
-import { Button } from "../components/ui/Button";
 import { MushroomIcon } from "../components/icons/MushroomIcon";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
-import { Marker as LeafletMarker } from "leaflet";
-import { useMapClick } from "../features/maps/hooks/useMap";
-import { MapMarker } from "../features/maps/components/MapMarker";
-import { NewMarkerPopup } from "../features/maps/components/NewMarkerPopup";
-
-const MapEvents = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) => {
-    useMapClick(onMapClick);
-    return null;
-};
+import { MushroomMap } from "../features/maps/components/MushroomMap";
+import { useLocations } from "../features/maps/hooks/useLocations";
+import { useDeleteLocation } from "../features/maps/hooks/useDeleteLocation";
 
 export const HomePage = () => {
-    const userNick = useAuthStore((state) => state.userNick);
-    const { locations, addLocation, removeLocation } = useLocationStore();
+    const { locations, setLocations } = useLocationStore();
+
+    const { data: apiLocations } = useLocations({ search: null });
+    const { mutate: deleteLocation } = useDeleteLocation();
+
+    useEffect(() => {
+        if (apiLocations) {
+            setLocations(apiLocations);
+        }
+    }, [apiLocations, setLocations]);
+
+    const handleDeleteLocation = useCallback((id: string | null) => {
+        if (id) {
+            deleteLocation(id);
+        }
+    }, [deleteLocation]);
 
     const [isAddingMode, setIsAddingMode] = useState(false);
-    const [tempCoords, setTempCoords] = useState<{ lat: number; lng: number } | null>(null);
-
-    const newMarkerRef = useRef<LeafletMarker>(null);
-
-    const handleMapClick = useCallback((lat: number, lng: number) => {
-        if (isAddingMode) {
-            setTempCoords({ lat, lng });
-        }
-    }, [isAddingMode]);
-
-    const handleSaveLocation = (name: string, text: string) => {
-        if (tempCoords && name) {
-            addLocation({
-                publicId: null,
-                name,
-                text,
-                lat: tempCoords.lat,
-                lng: tempCoords.lng,
-            });
-            resetAdding();
-        }
-    };
-
-    const resetAdding = () => {
-        setIsAddingMode(false);
-        setTempCoords(null);
-    };
 
     return (
         <div className="space-y-12">
             <section className="relative h-[75vh] w-full rounded-3xl overflow-hidden shadow-2xl border-3 border-white group">
-                <MapContainer
-                    center={[52.2297, 21.0122]}
-                    zoom={10}
-                    closePopupOnClick={false}
-                    className={`h-full w-full z-10 ${isAddingMode ? "cursor-crosshair" : ""}`}
-                >
-                    <TileLayer
-                        attribution="&copy; OpenStreetMap contributors"
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-
-                    <MapEvents onMapClick={handleMapClick} />
-
-                    {locations.map((location, index) => (
-                        <MapMarker
-                            key={location.publicId || `${location.lat}-${location.lng}-${index}`}
-                            location={location}
-                            index={index}
-                            onDelete={removeLocation}
-                        />
-                    ))}
-
-                    {tempCoords && (
-                        <Marker
-                            ref={newMarkerRef}
-                            position={[tempCoords.lat, tempCoords.lng]}
-                            eventHandlers={{
-                                add: (e) => {
-                                    e.target.openPopup();
-                                },
-                            }}
-                        >
-                            <NewMarkerPopup
-                                onSave={handleSaveLocation}
-                                onCancel={resetAdding}
-                            />
-                        </Marker>
-                    )}
-                </MapContainer>
+                <MushroomMap
+                    locations={locations}
+                    isAddingMode={isAddingMode}
+                    onAddingComplete={() => setIsAddingMode(false)}
+                    onDeleteLocation={handleDeleteLocation}
+                />
             </section>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

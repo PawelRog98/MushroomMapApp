@@ -1,13 +1,33 @@
 import { useState } from "react";
 import { Popup } from "react-leaflet";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import type { NewMarkerPopupProps } from "../types";
+import { useCreateLocation } from "../hooks/useCreateLocation";
 
-export const NewMarkerPopup = ({ onSave, onCancel }: NewMarkerPopupProps) => {
+export const NewMarkerPopup = ({ lat, lng, onSaveSuccess, onCancel }: NewMarkerPopupProps) => {
     const [newName, setNewName] = useState("");
     const [newText, setNewText] = useState("");
+    const { mutate: createLocation, isPending: isCreating } = useCreateLocation();
+
+    const handleSave = () => {
+        if (!newName) return;
+
+        createLocation(
+            {
+                name: newName,
+                text: newText,
+                lat,
+                lng,
+            },
+            {
+                onSuccess: () => {
+                    onSaveSuccess();
+                },
+            },
+        );
+    };
 
     return (
         <Popup closeOnClick={false}>
@@ -17,6 +37,7 @@ export const NewMarkerPopup = ({ onSave, onCancel }: NewMarkerPopupProps) => {
                     <button
                         onClick={onCancel}
                         className="text-mushroom-400 hover:text-mushroom-600"
+                        disabled={isCreating}
                     >
                         <X className="h-4 w-4" />
                     </button>
@@ -27,20 +48,29 @@ export const NewMarkerPopup = ({ onSave, onCancel }: NewMarkerPopupProps) => {
                         value={newName}
                         onChange={(e) => setNewName(e.target.value)}
                         autoFocus
+                        disabled={isCreating}
                     />
                     <Input
                         placeholder="Description..."
                         value={newText}
                         onChange={(e) => setNewText(e.target.value)}
+                        disabled={isCreating}
                     />
                 </div>
                 <Button
                     size="sm"
                     className="w-full bg-forest-600 hover:bg-forest-700"
-                    onClick={() => onSave(newName, newText)}
-                    disabled={!newName}
+                    onClick={handleSave}
+                    disabled={!newName || isCreating}
                 >
-                    Save Location
+                    {isCreating ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        "Save Location"
+                    )}
                 </Button>
             </div>
         </Popup>

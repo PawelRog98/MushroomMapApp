@@ -7,6 +7,26 @@ export type MapMarkerProps = {
 };
 
 export type NewMarkerPopupProps = {
-    onSave: (name: string, text: string) => void;
+    lat: number;
+    lng: number;
+    onSaveSuccess: () => void;
     onCancel: () => void;
 };
+
+export type CreateLocationRequest = {
+    name: string;
+    text: string;
+    lat: number;
+    lng: number;
+};
+
+export type GetLocationRequest = {
+    search: string | null
+}
+
+export type UpdateLocationRequest = {
+    name: string;
+    text: string;
+};
+
+export type { Location };

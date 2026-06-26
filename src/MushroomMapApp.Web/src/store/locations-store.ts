@@ -12,9 +12,13 @@ export type Location = {
 type LocationStore = {
     locations: Location[];
 
+    setLocations: (locations: Location[]) => void;
+
     addLocation: (location: Location) => void;
 
-    removeLocation: (id: string | null, lat?: number, lng?: number) => void;
+    updateLocation: (location: Location) => void;
+
+    removeLocation: (id: string) => void;
 };
 
 export const useLocationStore = create<LocationStore>()(
@@ -22,16 +26,24 @@ export const useLocationStore = create<LocationStore>()(
         persist(
             (set) => ({
                 locations: [],
+                setLocations: (locations) => set({ locations }),
+
                 addLocation: (data) =>
                     set((state) => ({
                         locations: [...state.locations, { ...data }],
                     })),
 
-                removeLocation: (id, lat, lng) =>
+                updateLocation: (updatedLoc) =>
+                    set((state) => ({
+                        locations: state.locations.map((loc) =>
+                            loc.publicId && loc.publicId === updatedLoc.publicId ? updatedLoc : loc
+                        ),
+                    })),
+
+                removeLocation: (id) =>
                     set((state) => ({
                         locations: state.locations.filter((loc) => {
                             if (id && loc.publicId === id) return false;
-                            if (!id && loc.lat === lat && loc.lng === lng) return false;
                             return true;
                         }),
                     })),
