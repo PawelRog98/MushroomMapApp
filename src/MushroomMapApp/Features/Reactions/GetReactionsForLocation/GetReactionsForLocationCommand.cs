@@ -8,7 +8,7 @@ namespace MushroomMapApp.Features.Reactions.GetReactionsForLocation;
 
 public record GetReactionsForLocationRequest(Guid locationPublicId);
 
-public record GetReactionsForLocationCommand(GetReactionsForLocationRequest request) : IRequest<IEnumerable<ReactionDto>>;
+public record GetReactionsForLocationCommand(GetReactionsForLocationRequest request, long? userId) : IRequest<IEnumerable<ReactionDto>>;
 
 public class GetReactionsForLocationCommandHandler : IRequestHandler<GetReactionsForLocationCommand, IEnumerable<ReactionDto>>
 {
@@ -26,6 +26,15 @@ public class GetReactionsForLocationCommandHandler : IRequestHandler<GetReaction
         if(location == null)
             throw new BadRequestException("Location not found.");
 
+        Guid? currentUserReaction = null;
+        if (request.userId.HasValue)
+        {
+            currentUserReaction = await _context.Reactions
+                .Where(x => x.LocationId == location.Id && x.UserId == request.userId.Value)
+                .Select(x => x.ReactionType.PublicId)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         return await _context.Reactions
             .Where(x => x.LocationId == location.Id)
             .GroupBy(x => new
@@ -41,7 +50,8 @@ public class GetReactionsForLocationCommandHandler : IRequestHandler<GetReaction
                 Key = x.Key.Key,
                 Name = x.Key.Name,
                 Icon = x.Key.Icon,
-                Count = x.Count()
+                Count = x.Count(),
+                HasReacted = x.Key.PublicId == currentUserReaction
             })
             .ToListAsync(cancellationToken);
 

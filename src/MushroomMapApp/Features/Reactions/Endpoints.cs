@@ -32,14 +32,19 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status403Forbidden);
 
         group.MapGet("get-reactions/{locationPublicId:guid}",
-            async (Guid locationPublicId, IMediator mediator, CancellationToken cancellationToken) =>
+            async (Guid locationPublicId, IMediator mediator, ClaimsPrincipal? user, CancellationToken cancellationToken) =>
             {
+                long? userId = null;
+                var userIdStr = user?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (!string.IsNullOrWhiteSpace(userIdStr) && long.TryParse(userIdStr, out var parsed))
+                    userId = parsed;
+
                 var response = await mediator.Send(
-                    new GetReactionsForLocationCommand(new GetReactionsForLocationRequest(locationPublicId)),
+                    new GetReactionsForLocationCommand(new GetReactionsForLocationRequest(locationPublicId), userId),
                     cancellationToken);
                 return ApiResponse.Ok(response);
             })
-            .RequireAuthorization()
             .Produces<Response<IEnumerable<ReactionDto>>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 

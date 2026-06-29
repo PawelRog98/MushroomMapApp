@@ -2,6 +2,7 @@ import { useReactions } from "../hooks/useReactions";
 import { useReactionTypes } from "../hooks/useReactionTypes";
 import { useToggleReaction } from "../hooks/useToggleReaction";
 import type { ReactionDto } from "../types";
+import { useAuthStore } from "../../../store/auth-store";
 
 export type ReactionRowProps = {
     locationPublicId: string;
@@ -11,6 +12,7 @@ export const ReactionRow = ({ locationPublicId }: ReactionRowProps) => {
     const { data: types } = useReactionTypes();
     const { data: reactions } = useReactions(locationPublicId);
     const { mutate: toggleReaction } = useToggleReaction(locationPublicId);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
     if (!types)
         return null;
@@ -32,12 +34,16 @@ export const ReactionRow = ({ locationPublicId }: ReactionRowProps) => {
                                 reactionTypePublicId: type.publicId,
                             })
                         }
-                        className="flex items-center gap-1 px-2 py-1 text-sm rounded-full
-                                border border-gray-200 hover:border-gray-400
-                                transition-colors cursor-pointer"
+                        className={`flex items-center gap-1 px-2 py-1 text-sm rounded-full
+                                border transition-colors cursor-pointer 
+                                ${isAuthenticated && reaction?.hasReacted ? 
+                                "border-forest-800 bg-forest-400 text-forest-200 hover:border-forest-300" : 
+                                "border-gray-200 hover:border-gray-400" }`}
                     >
                         <span>{type.icon}</span>
-                        <span className="text-xs text-gray-500">{reaction?.count ?? 0}</span>
+                        <span className={`text-xs ${isAuthenticated && reaction?.hasReacted 
+                        ? "text-forest-50" 
+                        : "text-gray-500"}`}>{reaction?.count ?? 0}</span>
                     </button>
                 );
             })}

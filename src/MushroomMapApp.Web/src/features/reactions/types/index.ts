@@ -4,6 +4,7 @@ export type ReactionDto = {
   name: string;
   icon: string;
   count: number;
+  hasReacted: boolean;
 };
 
 export type ReactionTypeDto = {
