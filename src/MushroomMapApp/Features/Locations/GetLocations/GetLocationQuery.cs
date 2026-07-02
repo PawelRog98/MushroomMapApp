@@ -1,12 +1,13 @@
-using LinqKit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MushroomMapApp.Domain.Data;
 using MushroomMapApp.Domain.Entities;
+using NetTopologySuite.Geometries;
+using Location = MushroomMapApp.Domain.Entities.Location;
 
 namespace MushroomMapApp.Features.Locations.GetLocations;
 
-public record GetLocationRequest(string? search);
+public record GetLocationRequest(string? search, double south, double west, double north, double east) : IRequest<IEnumerable<LocationListItemDto>>;
 public record  GetLocationQuery(GetLocationRequest request) : IRequest<IEnumerable<LocationListItemDto>>;
 
 public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumerable<LocationListItemDto>>
@@ -23,16 +24,24 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumer
     {
         try
         {
-            var predicate = PredicateBuilder.New<Location>(true);
+            var geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+
+            var query = _context.Locations.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.request.search))
             {
-                predicate = predicate.And(x=>x.Name.Contains(request.request.search));
+                query = query.Where(x => x.Name.Contains(request.request.search));
             }
 
-            return await _context.Locations
-                .AsExpandable()
-                .Where(predicate)
+            var envelope = new Envelope(request.request.west,
+                request.request.east,
+                request.request.south,
+                request.request.north);
+
+            var polygon = geometryFactory.ToGeometry(envelope);
+
+            return await query
+                .Where(x => x.Coordinates.Intersects(polygon))
                 .Select(x => new LocationListItemDto
                 {
                     PublicId = x.PublicId,

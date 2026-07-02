@@ -1,23 +1,14 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
-import { useLocationStore } from "../store/locations-store";
 import { MapPin, Plus } from "lucide-react";
 import { MushroomIcon } from "../components/icons/MushroomIcon";
 import { MushroomMap } from "../features/maps/components/MushroomMap";
-import { useLocations } from "../features/maps/hooks/useLocations";
+import type { Location } from "../features/maps/types";
 import { useDeleteLocation } from "../features/maps/hooks/useDeleteLocation";
 
 export const HomePage = () => {
-    const { locations, setLocations } = useLocationStore();
-
-    const { data: apiLocations } = useLocations({ search: null });
+    const [locations, setLocations] = useState<Location[]>([]);
     const { mutate: deleteLocation } = useDeleteLocation();
-
-    useEffect(() => {
-        if (apiLocations) {
-            setLocations(apiLocations);
-        }
-    }, [apiLocations, setLocations]);
 
     const handleDeleteLocation = useCallback((id: string | null) => {
         if (id) {
@@ -35,6 +26,7 @@ export const HomePage = () => {
                     isAddingMode={isAddingMode}
                     onAddingComplete={() => setIsAddingMode(false)}
                     onDeleteLocation={handleDeleteLocation}
+                    onLocationChange={setLocations}
                 />
             </section>
 

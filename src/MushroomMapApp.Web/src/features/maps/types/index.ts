@@ -1,5 +1,3 @@
-import type { Location } from "../../../store/locations-store";
-
 export type MapMarkerProps = {
     location: Location;
     index: number;
@@ -21,7 +19,11 @@ export type CreateLocationRequest = {
 };
 
 export type GetLocationRequest = {
-    search: string | null
+    search: string | null;
+    south: number;
+    west: number;
+    north: number;
+    east: number;
 }
 
 export type UpdateLocationRequest = {
@@ -29,4 +31,10 @@ export type UpdateLocationRequest = {
     text: string;
 };
 
-export type { Location };
+export type Location = {
+    publicId: string | null;
+    name: string;
+    text: string;
+    lat: number;
+    lng: number;
+};

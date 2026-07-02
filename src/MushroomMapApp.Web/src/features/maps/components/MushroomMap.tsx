@@ -4,13 +4,16 @@ import type { Marker as LeafletMarker } from "leaflet";
 import { useMapClick } from "../hooks/useMap";
 import { MapMarker } from "./MapMarker";
 import { NewMarkerPopup } from "./NewMarkerPopup";
-import type { Location } from "../../../store/locations-store";
+import type { Location } from "../types";
+import { BoundsListener } from "./BoundsListener";
 
 export type MushroomMapProps = {
     locations: Location[];
     isAddingMode: boolean;
+    search?: string | null;
     onAddingComplete: () => void;
     onDeleteLocation: (id: string | null, lat: number, lng: number) => void;
+    onLocationChange: (locations: Location[]) => void;
 };
 
 const MapEvents = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) => {
@@ -21,8 +24,10 @@ const MapEvents = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => v
 export const MushroomMap = ({
     locations,
     isAddingMode,
+    search,
     onAddingComplete,
     onDeleteLocation,
+    onLocationChange
 }: MushroomMapProps) => {
     const [tempCoords, setTempCoords] = useState<{ lat: number; lng: number } | null>(null);
     const newMarkerRef = useRef<LeafletMarker>(null);
@@ -48,6 +53,7 @@ export const MushroomMap = ({
             closePopupOnClick={false}
             className={`h-full w-full z-10 ${isAddingMode ? "cursor-crosshair" : ""}`}
         >
+            <BoundsListener search={search} onLocationChange={onLocationChange}/>
             <TileLayer
                 attribution="&copy; OpenStreetMap contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
