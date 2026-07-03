@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRedisCache, RedisCache>();
+        services.AddScoped<IFileStorage, FileManager>();
 
         return services;
     }

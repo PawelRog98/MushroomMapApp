@@ -5,6 +5,11 @@ namespace MushroomMapApp.Domain.Entities;
 
 public class Location : ICommonData
 {
+    public Location()
+    {
+        FileResources = new HashSet<FileResource>();
+    }
+
     public long Id { get; set; }
     public Guid PublicId { get; set; }
     public string Name { get; set; }
@@ -14,4 +19,5 @@ public class Location : ICommonData
     public User CreatedBy { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public DateTime? UpdatedAtUtc { get; set; }
+    public ICollection<FileResource> FileResources { get; set; }
 }

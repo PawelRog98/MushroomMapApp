@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<Reaction> Reactions => Set<Reaction>();
     public DbSet<ReactionType> ReactionTypes => Set<ReactionType>();
+    public DbSet<FileResource> FileResources => Set<FileResource>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
