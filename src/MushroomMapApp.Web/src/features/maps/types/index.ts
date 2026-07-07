@@ -16,6 +16,7 @@ export type CreateLocationRequest = {
     text: string;
     lat: number;
     lng: number;
+    images: File[]
 };
 
 export type GetLocationRequest = {

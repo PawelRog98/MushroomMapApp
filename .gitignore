@@ -39,6 +39,9 @@ lerna-debug.log*
 # Environment Variables
 .env
 
+# Storage
+Storage/
+
 # Logs and Databases
 *.log
 logs/

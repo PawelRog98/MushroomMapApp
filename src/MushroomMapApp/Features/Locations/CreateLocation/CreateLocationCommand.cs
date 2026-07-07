@@ -10,8 +10,6 @@ using Location = MushroomMapApp.Domain.Entities.Location;
 
 namespace MushroomMapApp.Features.Locations.CreateLocation;
 
-public record CreateLocationRequest(string Name, string Text, double Lat, double Lng, IReadOnlyList<IFormFile> Files);
-
 public record CreateLocationCommand(CreateLocationRequest request, long userId) : IRequest<LocationDto>;
 
 public class CreateLocationCommandHandler : IRequestHandler<CreateLocationCommand, LocationDto>
@@ -53,7 +51,7 @@ public class CreateLocationCommandHandler : IRequestHandler<CreateLocationComman
             await _context.Locations.AddAsync(location, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
-            foreach (var image in command.request.Files)
+            foreach (var image in command.request.Images)
             {
                 var savedPath = await _fileStorage.UploadFile(image);
 
@@ -68,6 +66,7 @@ public class CreateLocationCommandHandler : IRequestHandler<CreateLocationComman
                 };
 
                 await _context.FileResources.AddAsync(fileResource, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
                 savedImagePaths.Add(savedPath);
             }
 

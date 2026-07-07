@@ -26,7 +26,9 @@ public class FileManager : IFileStorage
         if(!Directory.Exists(folderPath))
             Directory.CreateDirectory(folderPath);
 
-        var fullPath = Path.Combine(folderPath, file.FileName);
+        var uniqueName = $"{Guid.NewGuid()}_{dateTimeNow.Year.ToString()}-{dateTimeNow.Month.ToString("D2")}-{dateTimeNow.Day.ToString("D2")}";
+
+        var fullPath = Path.Combine(folderPath, uniqueName);
 
         using var stream = new FileStream(fullPath, FileMode.Create);
         await  file.CopyToAsync(stream);

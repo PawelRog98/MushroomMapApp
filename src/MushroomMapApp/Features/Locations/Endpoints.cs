@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using MushroomMapApp.Features.Locations.CreateLocation;
 using MushroomMapApp.Features.Locations.GetLocations;
 using MushroomMapApp.Features.Locations.UpdateLocation;
@@ -15,7 +16,7 @@ public static class Endpoints
         var group = app.MapGroup("api/locations").WithTags("Locations");
 
         group.MapPost("create-location",
-            async (CreateLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+            async ([FromForm] CreateLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var userIdStr = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -25,6 +26,7 @@ public static class Endpoints
                 var response = await mediator.Send(new CreateLocationCommand(request, userId), cancellationToken);
                 return ApiResponse.Ok(response);
             })
+            .DisableAntiforgery()
             .RequireAuthorization()
             .Produces<Response<LocationDto>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)

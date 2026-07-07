@@ -1,10 +1,13 @@
 import api from "../../../lib/axios";
-import type { CreateLocationRequest, GetLocationRequest, UpdateLocationRequest, Location } from "../types";
+import type { GetLocationRequest, UpdateLocationRequest, Location } from "../types";
 import type { ApiResponse } from "../../../types/api";
 
 export const locationsApi = {
-    createLocation: async (data: CreateLocationRequest): Promise<Location> => {
-        const response = await api.post<ApiResponse<Location>>("/locations/create-location", data);
+    createLocation: async (formData: FormData): Promise<Location> => {
+        for (const [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+        const response = await api.post<ApiResponse<Location>>("/locations/create-location", formData);
         return response.data.data;
     },
 
