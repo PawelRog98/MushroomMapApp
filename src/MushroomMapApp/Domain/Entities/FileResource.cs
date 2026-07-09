@@ -6,6 +6,11 @@ namespace MushroomMapApp.Domain.Entities;
 
 public class FileResource : ICommonData
 {
+    public FileResource()
+    {
+        Wariants = new HashSet<FileResource>();
+    }
+
     public long Id { get; set; }
     public Guid PublicId { get; set; }
     public string FileName { get; set; }
@@ -15,6 +20,9 @@ public class FileResource : ICommonData
     public DateTime CreatedAtUtc { get; set; }
     public string Type  { get; set; }
     public long? LocationId { get; set; }
+    public long? ParentFileResourceId { get; set; }
+    public FileResource? ParentFileResource { get; set; }
+    public ICollection<FileResource>? Wariants { get; set; }
 
     [NotMapped]
     public FileType TypeEnum

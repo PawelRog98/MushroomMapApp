@@ -2,7 +2,7 @@ namespace MushroomMapApp.Domain.Interfaces;
 
 public interface IFileStorage
 {
-    Task<string> UploadFile(IFormFile file);
-    Task<FileStream?> DownloadFile(string fileName);
-    Task DeleteFile(string fileName);
+    Task UploadFile(Stream fileStream, string relativePath, CancellationToken cancellationToken = default);
+    Task<FileStream?> DownloadFile(string fileName, CancellationToken cancellationToken = default);
+    Task DeleteFile(string fileName,  CancellationToken cancellationToken = default);
 }

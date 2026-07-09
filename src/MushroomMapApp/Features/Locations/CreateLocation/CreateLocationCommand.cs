@@ -16,11 +16,18 @@ public class CreateLocationCommandHandler : IRequestHandler<CreateLocationComman
 {
     private readonly AppDbContext _context;
     private readonly IFileStorage _fileStorage;
+    private readonly IImageProcessingService _imageProcessingService;
+    private readonly IFilePathGenerator _filePathGenerator;
 
-    public  CreateLocationCommandHandler(AppDbContext context, IFileStorage fileStorage)
+    public  CreateLocationCommandHandler(AppDbContext context,
+        IFileStorage fileStorage,
+        IImageProcessingService imageProcessingService,
+        IFilePathGenerator filePathGenerator)
     {
         _context = context;
         _fileStorage = fileStorage;
+        _imageProcessingService = imageProcessingService;
+        _filePathGenerator = filePathGenerator;
     }
 
     public async Task<LocationDto> Handle(CreateLocationCommand command, CancellationToken cancellationToken)
@@ -53,23 +60,41 @@ public class CreateLocationCommandHandler : IRequestHandler<CreateLocationComman
 
             foreach (var image in command.request.Images)
             {
-                var savedPath = await _fileStorage.UploadFile(image);
+                var processedImages = await _imageProcessingService.ProcessImage(image, cancellationToken);
 
-                var fileResource = new FileResource
+                var largePath = _filePathGenerator.GenerateFilePath("jpg");
+                var thumbnailPath = _filePathGenerator.GenerateFilePath("jpg", "_thumb");
+
+                await _fileStorage.UploadFile(processedImages.LargeImage, largePath, cancellationToken);
+
+                var fileLargeResource = new FileResource
                 {
-                    FileName = savedPath,
+                    FileName = largePath,
                     ContentType = image.ContentType,
-                    Size = image.Length,
+                    Size = processedImages.LargeImage.Length,
                     CreatedAtUtc = DateTime.UtcNow,
                     TypeEnum = FileType.Image,
                     LocationId = location.Id
                 };
 
-                await _context.FileResources.AddAsync(fileResource, cancellationToken);
-                await _context.SaveChangesAsync(cancellationToken);
-                savedImagePaths.Add(savedPath);
-            }
+                await _context.FileResources.AddAsync(fileLargeResource, cancellationToken);
 
+                var thumbnailResource = new FileResource
+                {
+                    FileName = thumbnailPath,
+                    ContentType = image.ContentType,
+                    Size = processedImages.Thumbmage.Length,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    TypeEnum = FileType.Thumbnail,
+                    LocationId = location.Id,
+                    ParentFileResource = fileLargeResource
+                };
+
+                await _context.FileResources.AddAsync(thumbnailResource, cancellationToken);
+                savedImagePaths.Add(largePath);
+                savedImagePaths.Add(thumbnailPath);
+            }
+            await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
 

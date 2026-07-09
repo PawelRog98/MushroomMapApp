@@ -18,13 +18,20 @@ public class AddFileResourcesTable : Migration
                 .WithColumn("Size").AsInt64().NotNullable()
                 .WithColumn("CreatedAtUtc").AsDateTime2().NotNullable()
                 .WithColumn("Type").AsString(64).NotNullable()
-                .WithColumn("LocationId").AsInt64().Nullable();
+                .WithColumn("LocationId").AsInt64().Nullable()
+                .WithColumn("ParentFileResourceId").AsInt64().Nullable();
 
             IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
                 .Create.ForeignKey("FK_FileResources_LocationId")
                 .FromTable("FileResources").ForeignColumn("LocationId")
                 .ToTable("Locations").PrimaryColumn("Id")
                 .OnDelete(System.Data.Rule.Cascade);
+
+            IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
+                .Create.ForeignKey("FK_FileResources_ParentFileResourceId")
+                .FromTable("FileResources").ForeignColumn("ParentFileResourceId")
+                .ToTable("FileResources").PrimaryColumn("Id")
+                .OnDelete(System.Data.Rule.SetNull);
 
             IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
                 .Create.Index("IX_FileResources_PublicId")
@@ -39,6 +46,9 @@ public class AddFileResourcesTable : Migration
         {
             IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
                 .Delete.ForeignKey("FK_FileResources_LocationId").OnTable("FileResources");
+
+            IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
+                .Delete.ForeignKey("FK_FileResources_ParentFileResourceId").OnTable("FileResources");
 
             IfDatabase("sqlserver", "postgresql", "mysql", "oracle")
                 .Delete.Index("IX_FileResources_PublicId").OnTable("FileResources");

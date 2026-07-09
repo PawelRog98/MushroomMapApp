@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Interfaces;
+using MushroomMapApp.Infrastructure.Services.FileStorage;
 using StackExchange.Redis;
 
 namespace MushroomMapApp.Infrastructure.Services;
@@ -21,6 +22,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRedisCache, RedisCache>();
         services.AddScoped<IFileStorage, FileManager>();
+        services.AddScoped<IImageProcessingService, ImageProcessingService>();
+        services.AddScoped<IFilePathGenerator, FilePathGenerator>();
 
         return services;
     }
