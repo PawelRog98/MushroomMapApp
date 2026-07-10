@@ -8,7 +8,7 @@ public class FileResource : ICommonData
 {
     public FileResource()
     {
-        Wariants = new HashSet<FileResource>();
+        Variant = new HashSet<FileResource>();
     }
 
     public long Id { get; set; }
@@ -22,7 +22,7 @@ public class FileResource : ICommonData
     public long? LocationId { get; set; }
     public long? ParentFileResourceId { get; set; }
     public FileResource? ParentFileResource { get; set; }
-    public ICollection<FileResource>? Wariants { get; set; }
+    public ICollection<FileResource>? Variant { get; set; }
 
     [NotMapped]
     public FileType TypeEnum

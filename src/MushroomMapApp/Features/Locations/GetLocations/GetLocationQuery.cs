@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MushroomMapApp.Domain.Data;
 using MushroomMapApp.Domain.Entities;
+using MushroomMapApp.Domain.Enums;
 using NetTopologySuite.Geometries;
 using Location = MushroomMapApp.Domain.Entities.Location;
 
@@ -26,7 +27,9 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumer
         {
             var geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-            var query = _context.Locations.AsQueryable();
+            var query = _context.Locations
+                .AsNoTracking()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.request.search))
             {
@@ -48,7 +51,18 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumer
                     Name = x.Name,
                     Text = x.Text,
                     Lat = x.Coordinates.Y,
-                    Lng = x.Coordinates.X
+                    Lng = x.Coordinates.X,
+                    Images = x.FileResources
+                        .Where(y=>y.Type == FileType.Image.ToString())
+                        .Select(y=> new ImageDto
+                        {
+                            PublicId = y.PublicId,
+                            ThumbnailUrl = y.Variant
+                                .Where(z=>z.Type == FileType.Thumbnail.ToString())
+                                .Select(z=>$"{z.FileName}")
+                                .FirstOrDefault(),
+                            ContentType = y.ContentType
+                        }).ToList()
                 })
                 .ToListAsync(cancellationToken);
 

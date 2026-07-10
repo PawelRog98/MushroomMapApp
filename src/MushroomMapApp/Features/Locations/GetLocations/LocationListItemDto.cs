@@ -7,4 +7,13 @@ public class LocationListItemDto
     public string Text { get; set; }
     public double Lat { get; set; }
     public double Lng { get; set; }
+    public List<ImageDto> Images { get; set; }
+}
+
+public class ImageDto
+{
+    public Guid PublicId { get; set; }
+    public string Url  { get; set; }
+    public string ThumbnailUrl { get; set; }
+    public string ContentType { get; set; }
 }

@@ -1,5 +1,6 @@
 using MushroomMapApp.Domain.Abstractions;
 using NetTopologySuite.Geometries;
+using Point = NetTopologySuite.Geometries.Point;
 
 namespace MushroomMapApp.Domain.Entities;
 

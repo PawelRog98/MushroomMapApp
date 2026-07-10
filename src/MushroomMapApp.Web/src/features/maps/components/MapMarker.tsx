@@ -22,6 +22,17 @@ export const MapMarker = ({ location, index, onDelete }: MapMarkerProps) => {
                         </button>
                     </div>
                     <p className="text-sm text-mushroom-600">{location.text}</p>
+                    {location.images.length > 0 && (
+                        <div className="flex gap-2 overflow-x-auto mt-2">
+                            {location.images.map(img => (
+                                <img 
+                                key={img.publicId}
+                                src={"/"+img.thumbnailUrl}
+                                alt=""
+                                className="w-20 h-20 object-cover rounded cursor-pointer"/>
+                            ))}
+                        </div>
+                    )}
                     <ReactionRow locationPublicId={location.publicId!}/>
                 </div>
             </Popup>

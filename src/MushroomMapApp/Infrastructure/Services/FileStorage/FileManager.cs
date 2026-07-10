@@ -9,7 +9,7 @@ public class FileManager : IFileStorage
     private readonly string _storagePath;
     public FileManager(IOptions<FileStorageOptions> options)
     {
-        _storagePath = options.Value.StoragePath;
+        _storagePath = options.Value.RootPath;
 
         if (string.IsNullOrWhiteSpace(_storagePath))
             throw new InvalidOperationException("File storage root path is not configured.");

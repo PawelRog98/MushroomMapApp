@@ -6,6 +6,7 @@ using MushroomMapApp.Domain.Enums;
 using MushroomMapApp.Domain.Exceptions;
 using MushroomMapApp.Domain.Interfaces;
 using NetTopologySuite.Geometries;
+using Point = NetTopologySuite.Geometries.Point;
 using Location = MushroomMapApp.Domain.Entities.Location;
 
 namespace MushroomMapApp.Features.Locations.CreateLocation;
@@ -63,9 +64,10 @@ public class CreateLocationCommandHandler : IRequestHandler<CreateLocationComman
                 var processedImages = await _imageProcessingService.ProcessImage(image, cancellationToken);
 
                 var largePath = _filePathGenerator.GenerateFilePath("jpg");
-                var thumbnailPath = _filePathGenerator.GenerateFilePath("jpg", "_thumb");
+                var thumbnailPath = _filePathGenerator.GenerateFilePath("jpg", "_thumb", "thumbnails");
 
                 await _fileStorage.UploadFile(processedImages.LargeImage, largePath, cancellationToken);
+                await _fileStorage.UploadFile(processedImages.Thumbmage, thumbnailPath, cancellationToken);
 
                 var fileLargeResource = new FileResource
                 {

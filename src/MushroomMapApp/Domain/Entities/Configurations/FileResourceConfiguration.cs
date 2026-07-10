@@ -32,7 +32,7 @@ public class FileResourceConfiguration : IEntityTypeConfiguration<FileResource>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.ParentFileResource)
-            .WithMany(x => x.Wariants)
+            .WithMany(x => x.Variant)
             .HasForeignKey(x => x.ParentFileResourceId)
             .HasPrincipalKey(x => x.Id)
             .OnDelete(DeleteBehavior.SetNull);

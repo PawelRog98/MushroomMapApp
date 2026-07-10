@@ -9,6 +9,9 @@ using MushroomMapApp.Infrastructure.Jobs;
 using MushroomMapApp.Infrastructure.Middlewares;
 using MushroomMapApp.Infrastructure.Services;
 using Hangfire;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using MushroomMapApp.Infrastructure.Services.FileStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,10 +74,20 @@ if (!app.Environment.IsEnvironment("IntegrationTests"))
     await seeder.SeedAsync();
 }
 
+var fileStorageOptions = app.Services.GetRequiredService<IOptions<FileStorageOptions>>();
+var thumbnailsPath = Path.Combine(app.Environment.ContentRootPath, fileStorageOptions.Value.RootPath, "thumbnails");
+Directory.CreateDirectory(thumbnailsPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(thumbnailsPath),
+    RequestPath = "/thumbnails"
+});
+
 app.UseCors(mushroomMapSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {

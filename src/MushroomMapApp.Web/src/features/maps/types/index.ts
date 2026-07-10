@@ -32,10 +32,17 @@ export type UpdateLocationRequest = {
     text: string;
 };
 
+export type Image = {
+    publicId: string;
+    thumbnailUrl: string;
+    contentType: string;
+}
+
 export type Location = {
     publicId: string | null;
     name: string;
     text: string;
     lat: number;
     lng: number;
+    images: Image[];
 };
