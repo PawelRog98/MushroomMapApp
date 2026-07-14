@@ -11,6 +11,7 @@ using MushroomMapApp.Infrastructure.Services;
 using Hangfire;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
+using MushroomMapApp.Features.Files;
 using MushroomMapApp.Infrastructure.Services.FileStorage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -101,6 +102,6 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 app.MapUsersEndpoints();
 app.MapLocationsEndpoints();
 app.MapReactionsEndpoints();
+app.MapFileEndpoints();
 
 app.Run();
-
