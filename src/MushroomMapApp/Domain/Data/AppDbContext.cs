@@ -15,6 +15,10 @@ public class AppDbContext : DbContext
     public DbSet<Reaction> Reactions => Set<Reaction>();
     public DbSet<ReactionType> ReactionTypes => Set<ReactionType>();
     public DbSet<FileResource> FileResources => Set<FileResource>();
+    public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<UserRole>  UserRoles => Set<UserRole>();
+    public DbSet<UserPermission>  UserPermissions => Set<UserPermission>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

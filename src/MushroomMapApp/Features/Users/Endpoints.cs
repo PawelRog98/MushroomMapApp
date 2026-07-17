@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using MediatR;
 using MushroomMapApp.Features.Users.Login;
+using MushroomMapApp.Features.Users.Logout;
+using MushroomMapApp.Features.Users.Refresh;
 using MushroomMapApp.Features.Users.Register;
 using MushroomMapApp.Shared.Response;
 
@@ -26,5 +29,25 @@ public static class Endpoints
         })
         .Produces<Response<string>>(StatusCodes.Status200OK)
         .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("refresh", async (RefreshRequest request, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new Refresh.Command(request), cancellationToken);
+            return ApiResponse.Ok<AuthTokenDto>(result);
+        })
+        .Produces<Response<AuthTokenDto>>(StatusCodes.Status200OK)
+        .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("logout", async (ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                return ApiResponse.BadRequest("User not found.");
+
+            await mediator.Send(new MushroomMapApp.Features.Users.Logout.Command(userId), cancellationToken);
+            return ApiResponse.Ok<string>("Logged out successfully.");
+        })
+        .RequireAuthorization()
+        .Produces<Response<string>>(StatusCodes.Status200OK);
     }
 }

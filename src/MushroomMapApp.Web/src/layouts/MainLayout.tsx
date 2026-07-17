@@ -1,11 +1,24 @@
 import { Outlet, Link } from "react-router-dom";
 import { useAuthStore } from "../store/auth-store";
+import { authApi } from "../features/auth/api/auth";
 import { Button } from "../components/ui/Button";
 import { LogOut, User } from "lucide-react";
 import { MushroomIcon } from "../components/icons/MushroomIcon";
+import { permissionStore } from "../store/permission-store";
 
 export const MainLayout = () => {
     const { userNick, clearAuth } = useAuthStore();
+    const {clear} = permissionStore();
+
+    const handleLogout = async () => {
+        try {
+            await authApi.logout();
+        } catch {
+            // Ignore errors — clear local state regardless
+        }
+        clearAuth();
+        clear();
+    };
 
     return (
         <div className="min-h-screen bg-mushroom-50 flex flex-col">
@@ -24,7 +37,7 @@ export const MainLayout = () => {
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={clearAuth}
+                            onClick={handleLogout}
                             className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                             <LogOut className="h-4 w-4" />

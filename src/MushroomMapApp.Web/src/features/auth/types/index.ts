@@ -29,4 +29,17 @@ export interface AuthResponse {
     accessToken: string;
     refreshToken: string;
     userNick: string;
+    userId: string;
+}
+
+export interface UserPermissions {
+    permissions: string[];
+}
+
+export interface PermissionContextValue {
+    permissions: ReadonlySet<string>;
+    has(permissions: string): boolean;
+    reload(): Promise<void>;
+    clear(): void;
+    isLoaded: boolean;
 }

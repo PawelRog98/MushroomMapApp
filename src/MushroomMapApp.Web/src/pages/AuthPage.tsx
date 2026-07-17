@@ -9,7 +9,6 @@ export const AuthPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Derive isLogin directly from the URL to avoid redundant state synchronization
     const isLogin = !location.pathname.includes("register");
 
     useEffect(() => {

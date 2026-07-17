@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MushroomMapApp.Domain.Entities;
+using MushroomMapApp.Domain.Interfaces;
 
 namespace MushroomMapApp.Domain.Data;
 
@@ -9,11 +10,16 @@ public class DbSeeder
 {
     private readonly AppDbContext _context;
     private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IPermissionsSynchronizer _permissionsSynchronizer;
 
-    public DbSeeder(AppDbContext context, IPasswordHasher<User> passwordHasher)
+    public DbSeeder(
+        AppDbContext context,
+        IPasswordHasher<User> passwordHasher,
+        IPermissionsSynchronizer permissionsSynchronizer)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _permissionsSynchronizer = permissionsSynchronizer;
     }
 
 
@@ -43,6 +49,46 @@ public class DbSeeder
         {
             await _context.ReactionTypes.AddRangeAsync(GetReactionTypes());
             await _context.SaveChangesAsync();
+        }
+
+        await _permissionsSynchronizer.Synchronize(CancellationToken.None);
+
+        if (!await _context.UserRoles.AnyAsync())
+        {
+            var adminUser = await _context.Users
+                .FirstOrDefaultAsync(x => x.Email == "admin1@admin.com");
+            var adminRole = await _context.Roles
+                .FirstOrDefaultAsync(x => x.Name == "Administrator");
+
+            if (adminUser != null && adminRole != null)
+            {
+                _context.UserRoles.Add(new UserRole
+                {
+                    UserId = adminUser.Id,
+                    RoleId = adminRole.Id
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        if (!await _context.RolePermissions.AnyAsync())
+        {
+            var adminRole = await _context.Roles
+                .FirstOrDefaultAsync(x => x.Name == "Administrator");
+            var allPermissions = await _context.Permissions
+                .Where(x => x.IsActive)
+                .ToListAsync();
+
+            if (adminRole != null && allPermissions.Count != 0)
+            {
+                _context.RolePermissions.AddRange(
+                    allPermissions.Select(p => new RolePermission
+                    {
+                        RoleId = adminRole.Id,
+                        PermissionId = p.Id
+                    }));
+                await _context.SaveChangesAsync();
+            }
         }
     }
 
@@ -123,47 +169,6 @@ public class DbSeeder
 
         return reactionTypes;
     }
-
-    /*private async Task SeedRolesAsync(AppDbContext context)
-    {
-        if (!await context.Roles.AnyAsync())
-        {
-            var roles = new List<Role>
-            {
-                new Role { Name = UserRoles.Admin },
-                new Role { Name = UserRoles.User }
-            };
-
-            await context.Roles.AddRangeAsync(roles);
-            await context.SaveChangesAsync();
-        }
-    }
-
-    private async Task SeedAdminUserAsync(AppDbContext context, IPasswordHasher<User> passwordHasher)
-    {
-        if (!await context.Users.AnyAsync(u => u.Email == "admin@mushroommap.com"))
-        {
-            var adminRole = await context.Roles.FirstOrDefaultAsync(r => r.Name == UserRoles.Admin);
-            if (adminRole == null) return;
-
-            var adminUser = new User
-            {
-                PublicNick = "Admin",
-                FirstName = "System",
-                LastName = "Administrator",
-                Email = "admin@mushroommap.com",
-                IsEmailConfirmed = true,
-                RoleId = adminRole.Id,
-                DateOfBirth = new DateTime(1990, 1, 1),
-                CreatedAtUtc = DateTime.UtcNow
-            };
-
-            adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, "Admin123!");
-
-            await context.Users.AddAsync(adminUser);
-            await context.SaveChangesAsync();
-        }
-    }*/
 
     private async Task DbHealtCheck()
     {

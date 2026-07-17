@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Interfaces;
+using MushroomMapApp.Domain.Repositories;
+using MushroomMapApp.Infrastructure.Services.Authorization;
 using MushroomMapApp.Infrastructure.Services.FileStorage;
 using StackExchange.Redis;
 
@@ -24,6 +26,11 @@ public static class DependencyInjection
         services.AddScoped<IFileStorage, FileManager>();
         services.AddScoped<IImageProcessingService, ImageProcessingService>();
         services.AddScoped<IFilePathGenerator, FilePathGenerator>();
+        services.AddScoped<IPermissionRegistry, PermissionRegistry>();
+        services.AddScoped<IPermissionsSynchronizer, PermissionsSynchronizer>();
+        services.AddScoped<IPermissionService, PermissionsService>();
+        services.AddScoped<IPermissionsRepository, PermissionsRepository>();
+        services.AddScoped<IPermissionCacheBuilder, PermissionCacheBuilder>();
 
         return services;
     }
