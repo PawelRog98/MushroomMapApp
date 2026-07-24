@@ -1,5 +1,8 @@
+import type { ResourcePermissions } from "../../../types/api";
+
 export type MapMarkerProps = {
     location: Location;
+    permissions: LocationPermissions
     index: number;
     onDelete: (id: string | null, lat: number, lng: number) => void;
 };
@@ -46,3 +49,5 @@ export type Location = {
     lng: number;
     images: Image[];
 };
+
+export type LocationPermissions = ResourcePermissions

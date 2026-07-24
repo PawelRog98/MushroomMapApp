@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card"
 import { MapPin, Plus } from "lucide-react";
 import { MushroomIcon } from "../components/icons/MushroomIcon";
 import { MushroomMap } from "../features/maps/components/MushroomMap";
-import type { Location } from "../features/maps/types";
+import type { Location, LocationPermissions } from "../features/maps/types";
 import { useDeleteLocation } from "../features/maps/hooks/useDeleteLocation";
+import type { ItemWithMeta } from "../types/api";
 
 export const HomePage = () => {
-    const [locations, setLocations] = useState<Location[]>([]);
+    const [locations, setLocations] = useState<ItemWithMeta<Location, LocationPermissions>[]>([]);
     const { mutate: deleteLocation } = useDeleteLocation();
 
     const handleDeleteLocation = useCallback((id: string | null) => {

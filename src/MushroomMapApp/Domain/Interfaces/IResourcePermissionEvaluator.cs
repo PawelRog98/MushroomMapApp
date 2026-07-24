@@ -1,6 +1,6 @@
 namespace MushroomMapApp.Domain.Interfaces;
 
-public interface IResourcePermissionEvaluator<TResource>
+public interface IResourcePermissionEvaluator<TResource, TContext, TPermissionResult>
 {
-    Task<dynamic> Evaluate(TResource resource, CancellationToken cancellationToken);
+    Task<Dictionary<Guid, TPermissionResult>> Evaluate(IEnumerable<TResource> entities, TContext context, CancellationToken cancellationToken);
 }

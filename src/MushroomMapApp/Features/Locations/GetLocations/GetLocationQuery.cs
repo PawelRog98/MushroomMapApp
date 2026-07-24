@@ -3,24 +3,29 @@ using Microsoft.EntityFrameworkCore;
 using MushroomMapApp.Domain.Data;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Enums;
+using MushroomMapApp.Domain.Interfaces;
 using NetTopologySuite.Geometries;
 using Location = MushroomMapApp.Domain.Entities.Location;
 
 namespace MushroomMapApp.Features.Locations.GetLocations;
 
-public record GetLocationRequest(string? search, double south, double west, double north, double east) : IRequest<IEnumerable<LocationListItemDto>>;
-public record  GetLocationQuery(GetLocationRequest request) : IRequest<IEnumerable<LocationListItemDto>>;
+public record GetLocationRequest(string? search, double south, double west, double north, double east) : IRequest<(IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>;
+public record  GetLocationQuery(GetLocationRequest request) : IRequest<(IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>;
 
-public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumerable<LocationListItemDto>>
+public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, (IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>
 {
     private readonly AppDbContext _context;
+    private readonly IResourcePermissionEvaluator<Location, LocationPermissionContext, LocationPermissionResult> _evaluator;
+    private readonly IPermissionsContextFactory<LocationPermissionContext> _contextFactory;
 
-    public GetLocationQueryHandler(AppDbContext context)
+    public GetLocationQueryHandler(AppDbContext context,  IResourcePermissionEvaluator<Location, LocationPermissionContext, LocationPermissionResult> evaluator, IPermissionsContextFactory<LocationPermissionContext> contextFactory)
     {
         _context = context;
+        _evaluator = evaluator;
+        _contextFactory = contextFactory;
     }
 
-    public async Task<IEnumerable<LocationListItemDto>> Handle(GetLocationQuery request,
+    public async Task<(IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)> Handle(GetLocationQuery request,
         CancellationToken cancellationToken)
     {
         try
@@ -43,8 +48,13 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumer
 
             var polygon = geometryFactory.ToGeometry(envelope);
 
-            return await query
-                .Where(x => x.Coordinates.Intersects(polygon))
+            var locations = await query.Where(x => x.Coordinates.Intersects(polygon))
+                .ToListAsync(cancellationToken);
+
+            var context = await _contextFactory.Create(cancellationToken);
+            var permissions = await _evaluator.Evaluate(locations, context, cancellationToken);
+
+            var items = locations
                 .Select(x => new LocationListItemDto
                 {
                     PublicId = x.PublicId,
@@ -64,7 +74,9 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, IEnumer
                             ContentType = y.ContentType
                         }).ToList()
                 })
-                .ToListAsync(cancellationToken);
+                .ToList();
+
+            return (items, permissions);
 
         }
         catch (Exception ex)

@@ -89,7 +89,7 @@ public class AuthService : IAuthService
     public async Task RevokeRefreshTokens(long userId, CancellationToken cancellationToken)
     {
         var refreshTokens = await _context.Tokens
-            .Where(t => t.UserId == userId && t.TokenType == TokenType.RefreshToken)
+            .Where(t => t.UserId == userId && t.TokenTypeValue == TokenType.RefreshToken.ToString())
             .ToListAsync(cancellationToken);
 
         _context.Tokens.RemoveRange(refreshTokens);

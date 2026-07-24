@@ -5,29 +5,26 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MainLayout } from "./layouts/MainLayout";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthPage } from "./pages/AuthPage";
-import { HomePage } from "./pages/HomePage";
+import { getProtectedRoutes } from "./router/routes";
 
-function App() {
+const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <Routes>
-                    {/* Auth Routes */}
                     <Route path="/auth" element={<AuthLayout />}>
                         <Route path="login" element={<AuthPage />} />
                         <Route path="register" element={<AuthPage />} />
                         <Route index element={<Navigate to="login" replace />} />
                     </Route>
 
-                    {/* Protected App Routes */}
                     <Route element={<ProtectedRoute />}>
                         <Route element={<MainLayout />}>
-                            <Route path="/" element={<HomePage />} />
-                            {/* Add more protected routes here */}
+                            <Route path="/" element={<Navigate to="/locations" replace />} />
+                            {getProtectedRoutes()}
                         </Route>
                     </Route>
 
-                    {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </BrowserRouter>

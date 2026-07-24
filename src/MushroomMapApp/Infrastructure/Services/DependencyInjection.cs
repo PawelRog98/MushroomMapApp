@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Interfaces;
@@ -31,6 +32,8 @@ public static class DependencyInjection
         services.AddScoped<IPermissionService, PermissionsService>();
         services.AddScoped<IPermissionsRepository, PermissionsRepository>();
         services.AddScoped<IPermissionCacheBuilder, PermissionCacheBuilder>();
+        services.AddScoped<ICurrentUser, CurrentUser>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         return services;
     }

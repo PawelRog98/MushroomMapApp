@@ -90,6 +90,31 @@ public class DbSeeder
                 await _context.SaveChangesAsync();
             }
         }
+
+        var userRole = await _context.Roles
+            .FirstOrDefaultAsync(x => x.Name == "User");
+        if (userRole != null && !await _context.RolePermissions.AnyAsync(rp => rp.RoleId == userRole.Id))
+        {
+            var userPermissionCodes = new HashSet<string>
+            {
+                "locations.view"
+            };
+
+            var userPermissions = await _context.Permissions
+                .Where(p => userPermissionCodes.Contains(p.Code))
+                .ToListAsync();
+
+            if (userPermissions.Count != 0)
+            {
+                _context.RolePermissions.AddRange(
+                    userPermissions.Select(p => new RolePermission
+                    {
+                        RoleId = userRole.Id,
+                        PermissionId = p.Id
+                    }));
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 
     private IEnumerable<Role> GetRoles()

@@ -19,6 +19,7 @@ export const authApi = {
     },
     getPermissions: async (): Promise<UserPermissions> => {
         const response = await api.get<ApiResponse<UserPermissions>>("users/get-permissions");
+        console.log(response.data.data);
         return response.data.data;
     }
 };

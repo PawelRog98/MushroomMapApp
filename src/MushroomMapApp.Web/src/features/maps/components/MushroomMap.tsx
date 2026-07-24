@@ -4,16 +4,17 @@ import type { Marker as LeafletMarker } from "leaflet";
 import { useMapClick } from "../hooks/useMap";
 import { MapMarker } from "./MapMarker";
 import { NewMarkerPopup } from "./NewMarkerPopup";
-import type { Location } from "../types";
+import type { Location, LocationPermissions } from "../types";
 import { BoundsListener } from "./BoundsListener";
+import type { ItemWithMeta } from "../../../types/api";
 
 export type MushroomMapProps = {
-    locations: Location[];
+    locations: ItemWithMeta<Location, LocationPermissions>[];
     isAddingMode: boolean;
     search?: string | null;
     onAddingComplete: () => void;
     onDeleteLocation: (id: string | null, lat: number, lng: number) => void;
-    onLocationChange: (locations: Location[]) => void;
+    onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void;
 };
 
 const MapEvents = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) => {
@@ -63,8 +64,9 @@ export const MushroomMap = ({
 
             {locations.map((location, index) => (
                 <MapMarker
-                    key={location.publicId || `${location.lat}-${location.lng}-${index}`}
-                    location={location}
+                    key={location.data.publicId || `${location.data.lat}-${location.data.lng}-${index}`}
+                    location={location.data}
+                    permissions={location.meta}
                     index={index}
                     onDelete={onDeleteLocation}
                 />

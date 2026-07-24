@@ -40,12 +40,14 @@ builder.Services.AddSingleton(jwtSettings);
 var redisConnection = builder.Configuration.GetConnectionString("RedisConnection")!;
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+builder.Services.AddHttpContextAccessor();
 var mushroomMapSpecificOrigins = builder.Services.AddCorsPolicy(builder.Configuration);
 builder.Services.AddInfrastructureServices(redisConnection);
 builder.Services.AddPersistence(connectionString);
 builder.Services.AddBackgroundJobs(connectionString);
 builder.Services.AddJwtAuthentication(jwtSettings);
 builder.Services.AddCommonFeatures();
+builder.Services.AddLocationsFeature();
 builder.Services.AddSwaggerDocs();
 
 var app = builder.Build();

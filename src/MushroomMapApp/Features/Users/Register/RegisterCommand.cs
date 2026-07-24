@@ -67,6 +67,13 @@ public class Handler : IRequestHandler<Command, Unit>
             _context.Users.Add(user);
             await _context.SaveChangesAsync(cancellationToken);
 
+            _context.UserRoles.Add(new UserRole
+            {
+                UserId = user.Id,
+                RoleId = defaultRole.Id
+            });
+            await _context.SaveChangesAsync(cancellationToken);
+
             var verificationToken = new Token
             {
                 UserId = user.Id,

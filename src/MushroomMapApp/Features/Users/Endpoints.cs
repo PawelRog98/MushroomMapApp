@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MediatR;
+using MushroomMapApp.Features.Users.GetPermissions;
 using MushroomMapApp.Features.Users.Login;
 using MushroomMapApp.Features.Users.Logout;
 using MushroomMapApp.Features.Users.Refresh;
@@ -49,5 +50,18 @@ public static class Endpoints
         })
         .RequireAuthorization()
         .Produces<Response<string>>(StatusCodes.Status200OK);
+
+        group.MapGet("get-permissions", async (ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+        {
+            var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                return ApiResponse.BadRequest("User not found.");
+
+            var result = await mediator.Send(new GetPermissionsQuery(userId), cancellationToken);
+            return ApiResponse.Ok(result);
+        })
+        .RequireAuthorization()
+        .Produces<Response<UserPermissionsDto>>(StatusCodes.Status200OK)
+        .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
     }
 }

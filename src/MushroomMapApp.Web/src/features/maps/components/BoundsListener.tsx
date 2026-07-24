@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useMap, useMapEvents } from "react-leaflet";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocations } from "../hooks/useLocations";
-import type { Location } from "../types";
+import type { Location, LocationPermissions } from "../types";
+import type { ItemWithMeta } from "../../../types/api";
 
 export type Bounds = {
     south: number; 
@@ -13,7 +14,7 @@ export type Bounds = {
 
 type MapBoundsHandlerProps = {
     search?: string | null;
-    onLocationChange: (locations: Location[]) => void;
+    onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void;
 };
 
 export const BoundsListener = ({search, onLocationChange} : MapBoundsHandlerProps) => {

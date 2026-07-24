@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import type { GetLocationRequest, Location } from "../types";
+import type { GetLocationRequest, Location, LocationPermissions } from "../types";
 import { locationsApi } from "../api/locations";
+import type { ItemWithMeta } from "../../../types/api";
 
 export const useLocations =(
     filters: GetLocationRequest,
-    onLocationChange: (locations: Location[]) => void
+    onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void
 ) => {
     return useQuery({
         queryKey: ["locations", filters],

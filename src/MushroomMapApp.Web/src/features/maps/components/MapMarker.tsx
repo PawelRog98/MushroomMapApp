@@ -7,7 +7,7 @@ import type { MapMarkerProps } from "../types";
 import { ReactionRow } from "../../reactions/components/ReactionRow";
 import { useImage } from "../../files/hooks/useImage";
 
-export const MapMarker = ({ location, index, onDelete }: MapMarkerProps) => {
+export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerProps) => {
     const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
     
     const activeImage = activeImageIndex !== null ? location.images[activeImageIndex] : null;
@@ -54,6 +54,7 @@ export const MapMarker = ({ location, index, onDelete }: MapMarkerProps) => {
                     <div className="p-1 min-w-[150px]">
                         <div className="flex justify-between items-start mb-2">
                             <h3 className="font-bold text-forest-900 pr-4">{location.name}</h3>
+                            {permissions.canDelete && (
                             <button
                                 onClick={() => onDelete(location.publicId, location.lat, location.lng)}
                                 className="text-red-400 hover:text-red-600 transition-colors"
@@ -61,6 +62,7 @@ export const MapMarker = ({ location, index, onDelete }: MapMarkerProps) => {
                             >
                                 <Trash2 className="h-4 w-4" />
                             </button>
+                            )}
                         </div>
                         <p className="text-sm text-mushroom-600">{location.text}</p>
                         {location.images.length > 0 && (
