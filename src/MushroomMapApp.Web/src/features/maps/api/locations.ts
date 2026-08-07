@@ -1,5 +1,5 @@
 import api from "../../../lib/axios";
-import type { GetLocationRequest, UpdateLocationRequest, Location, LocationPermissions } from "../types";
+import type { GetLocationRequest, Location, LocationPermissions } from "../types";
 import type { ApiResponse, ItemWithMeta } from "../../../types/api";
 
 export const locationsApi = {
@@ -16,8 +16,8 @@ export const locationsApi = {
         return response.data.data;
     },
 
-    updateLocation: async (id: string, data: UpdateLocationRequest): Promise<Location> => {
-        const response = await api.put<ApiResponse<Location>>(`/locations/update-location/${id}`, data);
+    updateLocation: async (id: string, formData: FormData): Promise<Location> => {
+        const response = await api.put<ApiResponse<Location>>(`/locations/update-location/${id}`, formData);
         return response.data.data;
     },
 

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using MushroomMapApp.Domain.Models;
+using MushroomMapApp.Domain.Permissions;
+using MushroomMapApp.Infrastructure.Services.Authorization;
 using MushroomMapApp.Shared.Response;
 
 namespace MushroomMapApp.Configuration;
@@ -80,7 +82,14 @@ public static class ServiceCollectionExtensions
                 };
             });
 
-        services.AddAuthorization();
+        services.AddAuthorization(options =>
+        {
+            foreach (var permission in Permissions.All)
+            {
+                options.AddPolicy(permission, policy =>
+                    policy.Requirements.Add(new PermissionRequirement(permission)));
+            }
+        });
 
         return services;
     }

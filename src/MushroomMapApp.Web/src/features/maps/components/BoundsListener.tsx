@@ -38,7 +38,6 @@ export const BoundsListener = ({search, onLocationChange} : MapBoundsHandlerProp
     });
 
     const debouncedBounds = useDebounce(bounds, 300);
-    console.log("data: -> "+debouncedBounds.north);
 
     useLocations({search: search ?? null, 
         ...debouncedBounds,

@@ -49,6 +49,8 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, (IEnume
             var polygon = geometryFactory.ToGeometry(envelope);
 
             var locations = await query.Where(x => x.Coordinates.Intersects(polygon))
+                .Include(x=>x.FileResources)
+                .ThenInclude(x=>x.Variant)
                 .ToListAsync(cancellationToken);
 
             var context = await _contextFactory.Create(cancellationToken);

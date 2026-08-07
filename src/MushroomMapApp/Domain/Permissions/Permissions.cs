@@ -3,6 +3,13 @@ namespace MushroomMapApp.Domain.Permissions;
 public record PermissionDefinition(string Code, string Name, params string[] Implies);
 public static class Permissions
 {
+    public static readonly IReadOnlyList<string> All =
+    [
+        Locations.View.Code,
+        Locations.Edit.Code,
+        Locations.Delete.Code
+    ];
+
     public static class Locations
     {
         public static readonly PermissionDefinition View =

@@ -14,6 +14,12 @@ export type NewMarkerPopupProps = {
     onCancel: () => void;
 };
 
+export type EditMarkerPopupProps = {
+    location: Location;
+    onSaveSuccess: () => void;
+    onCancel: () => void;
+}
+
 export type CreateLocationRequest = {
     name: string;
     text: string;
@@ -33,6 +39,8 @@ export type GetLocationRequest = {
 export type UpdateLocationRequest = {
     name: string;
     text: string;
+    images: File[];
+    keepImageIds: string[];
 };
 
 export type Image = {
@@ -49,5 +57,15 @@ export type Location = {
     lng: number;
     images: Image[];
 };
+
+export type MarkerFormValues = {
+    name: string;
+    text: string;
+}
+
+export type ExistingImageData = {
+    id: string;
+    thumbnailUrl: string;
+}
 
 export type LocationPermissions = ResourcePermissions

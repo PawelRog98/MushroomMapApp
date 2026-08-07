@@ -53,7 +53,7 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPut("update-location/{id:guid}",
-            async (Guid id, UpdateLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+            async (Guid id,[FromForm] UpdateLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var userIdStr = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -63,6 +63,7 @@ public static class Endpoints
                 var response = await mediator.Send(new UpdateLocationCommand(id, request, userId), cancellationToken);
                 return ApiResponse.Ok(response);
             })
+            .DisableAntiforgery()
             .RequireAuthorization()
             .Produces<Response<LocationDto>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)

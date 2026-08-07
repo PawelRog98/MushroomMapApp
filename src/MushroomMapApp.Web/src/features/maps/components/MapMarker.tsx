@@ -1,14 +1,16 @@
 import { Marker, Popup } from "react-leaflet";
-import { Trash2, Loader2, AlertCircle } from "lucide-react";
+import { Trash2, Loader2, AlertCircle, Pencil } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import type { MapMarkerProps } from "../types";
 import { ReactionRow } from "../../reactions/components/ReactionRow";
 import { useImage } from "../../files/hooks/useImage";
+import { EditMapMarkerPopup } from "./EditMarkerPopup";
 
 export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerProps) => {
     const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
     
     const activeImage = activeImageIndex !== null ? location.images[activeImageIndex] : null;
 
@@ -51,9 +53,24 @@ export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerP
                 position={[location.lat, location.lng]}
             >
                 <Popup>
-                    <div className="p-1 min-w-[150px]">
+                    {isEditing ? (
+                        <EditMapMarkerPopup 
+                            location={location}
+                            onSaveSuccess={() => setIsEditing(false)}
+                            onCancel={() => setIsEditing(false)}
+                        />
+                    ) :
+                    (<div className="p-1 min-w-[150px]">
                         <div className="flex justify-between items-start mb-2">
                             <h3 className="font-bold text-forest-900 pr-4">{location.name}</h3>
+                            {permissions.canEdit && (
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="text-mushroom-400 hover:text-mushroom-600 transition-colors"
+                                    title="Edit">
+                                    <Pencil className="h-4 w-4"/> 
+                                </button>
+                            )}
                             {permissions.canDelete && (
                             <button
                                 onClick={() => onDelete(location.publicId, location.lat, location.lng)}
@@ -92,7 +109,7 @@ export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerP
                             </div>
                         )}
                         <ReactionRow locationPublicId={location.publicId!} />
-                    </div>
+                    </div>)}
                 </Popup>
             </Marker>
             <Lightbox
