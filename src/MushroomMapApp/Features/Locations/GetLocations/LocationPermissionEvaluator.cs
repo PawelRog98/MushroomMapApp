@@ -22,8 +22,6 @@ public class LocationPermissionEvaluator : IResourcePermissionEvaluator<Location
     public Task<Dictionary<Guid, LocationPermissionResult>> Evaluate(IEnumerable<Location> locations, LocationPermissionContext context, CancellationToken cancellationToken)
     {
         var result = new Dictionary<Guid, LocationPermissionResult>();
-
-        var hasEdit = context.Permissions.Contains(Permissions.Locations.Edit.Code);
         var hasDelete = context.Permissions.Contains(Permissions.Locations.Delete.Code);
 
         foreach (var location in locations)
@@ -32,7 +30,7 @@ public class LocationPermissionEvaluator : IResourcePermissionEvaluator<Location
             result[location.PublicId] = new LocationPermissionResult
             {
                 CanView = true,
-                CanEdit = hasEdit || isOwner,
+                CanEdit = isOwner,
                 CanDelete = hasDelete || isOwner
             };
         }

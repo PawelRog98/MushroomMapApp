@@ -32,7 +32,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Features\Jobs\Recurring\" />
       <Folder Include="Features\Jobs\Triggered\" />
     </ItemGroup>
 

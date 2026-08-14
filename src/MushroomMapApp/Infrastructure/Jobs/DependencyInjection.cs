@@ -1,6 +1,8 @@
 using Hangfire;
 using Hangfire.PostgreSql;
+using MushroomMapApp.Features.Jobs.Abstraction;
 using Npgsql;
+using System.Reflection;
 
 namespace MushroomMapApp.Infrastructure.Jobs;
 
@@ -8,6 +10,21 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddBackgroundJobs(this IServiceCollection services, string connectionString)
     {
+        var jobTypes = typeof(IRecurringJob).Assembly
+            .GetTypes()
+            .Where(t =>
+                typeof(IRecurringJob).IsAssignableFrom(t) &&
+                !t.IsAbstract &&
+                !t.IsInterface &&
+                t.GetCustomAttribute<RecurringJobAttribute>() != null);
+
+        foreach (var type in jobTypes)
+        {
+            services.AddScoped(typeof(IRecurringJob), type);
+        }
+
+        services.AddScoped<JobRegistrar>();
+
         services.AddHangfire(conf =>
             conf.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()

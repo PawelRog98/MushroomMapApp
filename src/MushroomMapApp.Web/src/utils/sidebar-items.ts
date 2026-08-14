@@ -16,4 +16,24 @@ export const sidebarItems: SidebarItem[] = [
         icon: Map,
         permission: Permissions.Locations.View,
     },
+    {
+        title: "Admin dashboard",
+        href: "/dashboard",
+        icon: Map,
+        permission: Permissions.AdministratorDashboard.View,
+        children: [
+            {
+                title: "Suspensions",
+                href: "/dashboard/suspensions",
+                icon: Map,
+                permission: Permissions.AdministratorDashboard.UserManagment
+            },
+            {
+                title: "Permissions",
+                href: "/dashboard/permissions",
+                icon: Map,
+                permission: Permissions.AdministratorDashboard.PermissionsEdit
+            },
+        ]
+    }
 ];

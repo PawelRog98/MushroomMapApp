@@ -71,26 +71,6 @@ public class DbSeeder
             }
         }
 
-        if (!await _context.RolePermissions.AnyAsync())
-        {
-            var adminRole = await _context.Roles
-                .FirstOrDefaultAsync(x => x.Name == "Administrator");
-            var allPermissions = await _context.Permissions
-                .Where(x => x.IsActive)
-                .ToListAsync();
-
-            if (adminRole != null && allPermissions.Count != 0)
-            {
-                _context.RolePermissions.AddRange(
-                    allPermissions.Select(p => new RolePermission
-                    {
-                        RoleId = adminRole.Id,
-                        PermissionId = p.Id
-                    }));
-                await _context.SaveChangesAsync();
-            }
-        }
-
         var userRole = await _context.Roles
             .FirstOrDefaultAsync(x => x.Name == "User");
         if (userRole != null && !await _context.RolePermissions.AnyAsync(rp => rp.RoleId == userRole.Id))

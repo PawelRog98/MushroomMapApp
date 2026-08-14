@@ -8,6 +8,7 @@ public class User : ICommonData
     {
         Tokens = new HashSet<Token>();
         Locations = new HashSet<Location>();
+        Suspensions = new HashSet<Suspension>();
     }
 
     public long Id { get; set; }
@@ -27,4 +28,5 @@ public class User : ICommonData
 
     public ICollection<Token> Tokens { get; set; }
     public ICollection<Location> Locations { get; set; }
+    public ICollection<Suspension>  Suspensions { get; set; }
 }

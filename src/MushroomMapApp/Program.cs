@@ -8,6 +8,7 @@ using MushroomMapApp.Features.Users;
 using MushroomMapApp.Infrastructure.Jobs;
 using MushroomMapApp.Infrastructure.Middlewares;
 using MushroomMapApp.Infrastructure.Services;
+using MushroomMapApp.Infrastructure.Jobs;
 using Hangfire;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -20,12 +21,6 @@ builder.Configuration.AddMainConfiguration();
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.GetSection("JWTAuth").Bind(jwtSettings);
-
-Console.Error.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-Console.Error.WriteLine($"[DIAGNOSTIC BUILD 20260609-1] JWT Issuer: {jwtSettings.JwtIssuer}");
-Console.Error.WriteLine($"[DIAGNOSTIC BUILD 20260609-1] JWT Key Length: {jwtSettings.JwtKey?.Length ?? 0}");
-Console.Error.WriteLine($"[DIAGNOSTIC BUILD 20260609-1] ENV JWT_KEY Length: {Environment.GetEnvironmentVariable("JWT_KEY")?.Length ?? 0}");
-Console.Error.WriteLine("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 if (string.IsNullOrEmpty(jwtSettings.JwtKey))
 {
@@ -91,6 +86,8 @@ app.UseCors(mushroomMapSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 
+using (var jobScope = app.Services.CreateScope())
+    jobScope.ServiceProvider.GetRequiredService<JobRegistrar>().Register();
 
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
