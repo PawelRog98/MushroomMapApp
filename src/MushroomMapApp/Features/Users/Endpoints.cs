@@ -2,11 +2,13 @@ using System.Security.Claims;
 using MediatR;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Permissions;
+using MushroomMapApp.Features.Users.AttachPermissions;
 using MushroomMapApp.Features.Users.GetPermissions;
 using MushroomMapApp.Features.Users.Login;
 using MushroomMapApp.Features.Users.Logout;
 using MushroomMapApp.Features.Users.Refresh;
 using MushroomMapApp.Features.Users.Register;
+using MushroomMapApp.Features.Users.GetAllUsers;
 using MushroomMapApp.Features.Users.Suspend;
 using MushroomMapApp.Features.Users.Unsuspend;
 using MushroomMapApp.Shared.Response;
@@ -68,6 +70,16 @@ public static class Endpoints
         .Produces<Response<UserPermissionsDto>>(StatusCodes.Status200OK)
         .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
+        group.MapGet("get-all",
+            async (IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(new GetAllUsersQuery(), cancellationToken);
+                return ApiResponse.Ok(result);
+            })
+            .RequireAuthorization(Permissions.AdministratorDashboard.UserManagment.Code)
+            .Produces<Response<List<UserListItemDto>>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
         group.MapPost("suspend",
             async (SuspendUserRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
             {
@@ -92,5 +104,19 @@ public static class Endpoints
             .Produces<Response<object>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
+        group.MapPost("set-permission",
+                async (AttachPermissionsRequest request, ClaimsPrincipal user, IMediator Mediator,
+                    CancellationToken cancellationToken) =>
+                {
+                    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                        return ApiResponse.BadRequest("User not found.");
+
+                    var result = await Mediator.Send(new AttachPermissionsCommand(userId, request), cancellationToken);
+                    return ApiResponse.Ok(result);
+                })
+            .RequireAuthorization(Permissions.AdministratorDashboard.PermissionsEdit.Code)
+            .Produces<Response<object>>( StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
     }
 }

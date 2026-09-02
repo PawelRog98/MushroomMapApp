@@ -28,12 +28,6 @@ public class SuspendUserCommandHandler : IRequestHandler<SuspendUserCommand, Uni
             if (user == null)
                 throw new BadRequestException("Invalid user data.");
 
-            var admin = await _context.Users.FirstOrDefaultAsync(x=>x.Id == request.CurrentUserId &&
-                x.Role.Name == "Administrator", cancellationToken);
-
-            if (admin == null)
-                throw new BadRequestException("Invalid admin data.");
-
             var date = DateTime.UtcNow.AddDays(request.Request.Days);
             var suspensionEndDateFull = new DateTime(date.Year, date.Month, date.Day, 23, 59,  59, 999);
 
@@ -44,7 +38,7 @@ public class SuspendUserCommandHandler : IRequestHandler<SuspendUserCommand, Uni
                 Reason = request.Request.Reason,
                 Status = SuspensionStatusEnum.Active,
                 UserId = user.Id,
-                SuspendedById = admin.Id
+                SuspendedById = request.CurrentUserId
             };
 
             await  _context.Suspensions.AddAsync(suspension, cancellationToken);

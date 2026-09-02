@@ -19,7 +19,7 @@ public class GetPermissionsQueryHandler : IRequestHandler<GetPermissionsQuery, U
         var permissions = await _permissionService.GetPermissions(query.UserId, cancellationToken);
         return new UserPermissionsDto
         {
-            Permissions = permissions.ToArray()
+            Permissions = permissions.ToList()
         };
     }
 }

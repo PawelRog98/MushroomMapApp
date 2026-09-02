@@ -1,5 +1,5 @@
 import { Permissions } from "../features/auth/types/permissions";
-import { Map, type LucideIcon } from "lucide-react";
+import { Map, UserCheck, UserKey, UserLock, type LucideIcon } from "lucide-react";
 
 export interface SidebarItem {
     title: string;
@@ -19,19 +19,19 @@ export const sidebarItems: SidebarItem[] = [
     {
         title: "Admin dashboard",
         href: "/dashboard",
-        icon: Map,
+        icon: UserKey,
         permission: Permissions.AdministratorDashboard.View,
         children: [
             {
                 title: "Suspensions",
                 href: "/dashboard/suspensions",
-                icon: Map,
+                icon: UserLock,
                 permission: Permissions.AdministratorDashboard.UserManagment
             },
             {
                 title: "Permissions",
                 href: "/dashboard/permissions",
-                icon: Map,
+                icon: UserCheck,
                 permission: Permissions.AdministratorDashboard.PermissionsEdit
             },
         ]

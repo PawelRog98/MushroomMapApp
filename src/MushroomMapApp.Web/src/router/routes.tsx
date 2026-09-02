@@ -3,9 +3,13 @@ import type { FC } from "react";
 import { sidebarItems, type SidebarItem } from "../utils/sidebar-items";
 import { RouteGuard } from "../features/auth/components/RouteGuard";
 import { HomePage } from "../pages/HomePage";
+import { SuspensionPage } from "../features/administration/components/SuspensionPage";
+import { PermissionPage } from "../features/administration/components/PermissionPage";
 
 const pageRegistry: Record<string, FC> = {
     "/locations": HomePage,
+    "/dashboard/suspensions": SuspensionPage,
+    "/dashboard/permissions": PermissionPage,
 };
 
 const flattenItems = (items: SidebarItem[]): SidebarItem[] => {
