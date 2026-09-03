@@ -1,13 +1,15 @@
 import { NavLink } from "react-router-dom";
 import { useSidebarPermission } from "../features/auth/hooks/useSidebarPermission";
 import { cn } from "../lib/utils";
-import { ChevronDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, User } from "lucide-react";
 import { useState } from "react";
 import type { SidebarItem } from "../utils/sidebar-items";
 
 interface SidebarProps {
     collapsed: boolean;
     onToggle: () => void;
+    userNick?: string;
+    onLogout?: () => void;
 }
 
 const SidebarNavItem = ({ item, collapsed }: { item: SidebarItem; collapsed: boolean }) => {
@@ -71,7 +73,7 @@ const SidebarNavItem = ({ item, collapsed }: { item: SidebarItem; collapsed: boo
     );
 }
 
-export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
+export const Sidebar = ({ collapsed, onToggle, userNick, onLogout }: SidebarProps) => {
     const items = useSidebarPermission();
 
     return (
@@ -102,6 +104,37 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
                     )}
                 </button>
             </div>
+            {(userNick || onLogout) && (
+                <div className={cn(
+                    "border-b border-forest-700 p-3",
+                    collapsed ? "flex flex-col items-center gap-2" : "space-y-2",
+                )}>
+                    {!collapsed && userNick && (
+                        <div className="flex items-center gap-2 text-forest-200 px-1">
+                            <User className="h-4 w-4 shrink-0" />
+                            <span className="text-sm font-medium truncate">{userNick}</span>
+                        </div>
+                    )}
+                    {collapsed && userNick && (
+                        <div className="text-forest-300" title={userNick}>
+                            <User className="h-5 w-5" />
+                        </div>
+                    )}
+                    {onLogout && (
+                        <button
+                            onClick={onLogout}
+                            className={cn(
+                                "flex items-center gap-2 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-forest-700 transition-colors",
+                                collapsed ? "justify-center p-1.5" : "w-full px-3 py-2.5",
+                            )}
+                            title={collapsed ? "Logout" : undefined}
+                        >
+                            <LogOut className="h-4 w-4 shrink-0" />
+                            {!collapsed && <span>Logout</span>}
+                        </button>
+                    )}
+                </div>
+            )}
             <nav className="flex-1 py-4 space-y-1 overflow-y-auto">
                 {items.map((item) => (
                     <SidebarNavItem key={item.href} item={item} collapsed={collapsed} />
