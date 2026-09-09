@@ -9,8 +9,10 @@ using MushroomMapApp.Features.Users.Logout;
 using MushroomMapApp.Features.Users.Refresh;
 using MushroomMapApp.Features.Users.Register;
 using MushroomMapApp.Features.Users.GetAllUsers;
+using MushroomMapApp.Features.Users.GetUserData;
 using MushroomMapApp.Features.Users.Suspend;
 using MushroomMapApp.Features.Users.Unsuspend;
+using MushroomMapApp.Features.Users.UpdateUserData;
 using MushroomMapApp.Shared.Response;
 
 namespace MushroomMapApp.Features.Users;
@@ -117,6 +119,32 @@ public static class Endpoints
                 })
             .RequireAuthorization(Permissions.AdministratorDashboard.PermissionsEdit.Code)
             .Produces<Response<object>>( StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapGet("get-user-data",
+            async (Guid userPublicId, IMediator Mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await Mediator.Send(new GetUserDataQuery(new GetUserDataRequest(userPublicId)), cancellationToken);
+                return ApiResponse.Ok(result);
+            })
+            .RequireAuthorization()
+            .Produces<Response<UserDataDto>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapPut("update-user-data",
+                async (UpdateUserDataRequest request, ClaimsPrincipal user, IMediator Mediator,
+                    CancellationToken cancellationToken) =>
+                {
+                    var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                    if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                        return ApiResponse.BadRequest("User not found.");
+
+                    var result = await Mediator.Send(new UpdateUserDataUpdateCommand(request, userId),
+                        cancellationToken);
+                    return ApiResponse.Ok(result);
+                })
+            .RequireAuthorization()
+            .Produces<Response<object>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
     }
 }

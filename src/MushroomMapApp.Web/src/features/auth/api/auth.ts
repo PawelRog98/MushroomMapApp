@@ -1,5 +1,5 @@
 import api from "../../../lib/axios";
-import type { AuthResponse, LoginFormValues, RegisterFormValues, UserPermissions } from "../types";
+import type { AuthResponse, LoginFormValues, RegisterFormValues, UpdateUserDataFormValues, UserPermissions, UserProfile } from "../types";
 import type { ApiResponse } from "../../../types/api";
 
 export const authApi = {
@@ -18,8 +18,17 @@ export const authApi = {
         await api.post("/users/logout");
     },
     getPermissions: async (): Promise<UserPermissions> => {
-        const response = await api.get<ApiResponse<UserPermissions>>("users/get-permissions");
-        console.log(response.data.data);
+        const response = await api.get<ApiResponse<UserPermissions>>("/users/get-permissions");
+        return response.data.data;
+    },
+    getUserData: async (userPublicId: string): Promise<UserProfile> => {
+        const response = await api.get<ApiResponse<UserProfile>>("/users/get-user-data", {
+            params: { userPublicId },
+        });
+        return response.data.data;
+    },
+    updateUserData: async(data: UpdateUserDataFormValues) : Promise<void> => {
+        const response = await api.put("/users/update-user-data", data);
         return response.data.data;
     }
 };

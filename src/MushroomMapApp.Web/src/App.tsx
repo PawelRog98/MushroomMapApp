@@ -6,6 +6,7 @@ import { MainLayout } from "./layouts/MainLayout";
 import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthPage } from "./pages/AuthPage";
 import { getProtectedRoutes } from "./router/routes";
+import { UserProfilePage } from "./features/auth/components/UserProfilePage";
 
 const App = () => {
     return (
@@ -22,6 +23,7 @@ const App = () => {
                         <Route element={<MainLayout />}>
                             <Route path="/" element={<Navigate to="/locations" replace />} />
                             {getProtectedRoutes()}
+                            <Route path="/profile/:id" element={<UserProfilePage />}/>
                         </Route>
                     </Route>
 

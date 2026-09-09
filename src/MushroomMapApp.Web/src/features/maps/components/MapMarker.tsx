@@ -7,6 +7,7 @@ import type { MapMarkerProps } from "../types";
 import { ReactionRow } from "../../reactions/components/ReactionRow";
 import { useImage } from "../../files/hooks/useImage";
 import { EditMapMarkerPopup } from "./EditMarkerPopup";
+import { Link } from "react-router-dom";
 
 export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerProps) => {
     const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
@@ -63,6 +64,11 @@ export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerP
                     (<div className="p-1 min-w-[150px]">
                         <div className="flex justify-between items-start mb-2">
                             <h3 className="font-bold text-forest-900 pr-4">{location.name}</h3>
+                            <Link to={location.authorPublicId ? `/profile/${location.authorPublicId}` : "#"} className="flex items-center gap-2 px-1 transition-colors">
+                                <h4 className="text-forest-900 pr-4 hover:text-mushroom-300">
+                                    {location.authorName}
+                                </h4>
+                            </Link>
                             {permissions.canEdit && (
                                 <button
                                     onClick={() => setIsEditing(true)}

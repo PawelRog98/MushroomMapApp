@@ -22,8 +22,20 @@ export const registerSchema = z
         path: ["confirmPassword"],
     });
 
+export const updateProfileSchema = z.object({
+    publicNick: z.string().min(1, "Nick is required").max(100),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    dateOfBirth: z.string().refine((date) => !isNaN(Date.parse(date)), {
+        message: "Invalid date of birth",
+    }),
+    accountInfo: z.string().optional(),
+});
+
+
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
+export type UpdateUserDataFormValues = z.infer<typeof updateProfileSchema>;
 
 export interface AuthResponse {
     accessToken: string;
@@ -42,4 +54,16 @@ export interface PermissionContextValue {
     reload(): Promise<void>;
     clear(): void;
     isLoaded: boolean;
+}
+
+export interface UserProfile {
+    publicNick: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    dateOfBirth: string;
+    accountInfo: string | null;
+    isEmailConfirmed: boolean;
+    roleName: string;
+    createdAtUtc: Date;
 }

@@ -51,6 +51,8 @@ export type Image = {
 
 export type Location = {
     publicId: string | null;
+    authorName: string;
+    authorPublicId: string;
     name: string;
     text: string;
     lat: number;

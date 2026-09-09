@@ -52,7 +52,7 @@ public class Handler : IRequestHandler<Command, AuthTokenDto>
                 AccessToken = token.AccessToken,
                 RefreshToken = token.RefreshToken,
                 UserNick = token.UserNick,
-                UserId = user.Id.ToString()
+                UserId = user.PublicId.ToString()
             };
 
             await transaction.CommitAsync(cancellationToken);

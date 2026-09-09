@@ -9,8 +9,8 @@ using Location = MushroomMapApp.Domain.Entities.Location;
 
 namespace MushroomMapApp.Features.Locations.GetLocations;
 
-public record GetLocationRequest(string? search, double south, double west, double north, double east) : IRequest<(IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>;
-public record  GetLocationQuery(GetLocationRequest request) : IRequest<(IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>;
+public record GetLocationRequest(string? search, double south, double west, double north, double east);
+public record GetLocationQuery(GetLocationRequest request) : IRequest<(IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>;
 
 public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, (IEnumerable<LocationListItemDto> Items, Dictionary<Guid, LocationPermissionResult> Permissions)>
 {
@@ -49,6 +49,7 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, (IEnume
             var polygon = geometryFactory.ToGeometry(envelope);
 
             var locations = await query.Where(x => x.Coordinates.Intersects(polygon))
+                .Include(x=>x.CreatedBy)
                 .Include(x=>x.FileResources)
                 .ThenInclude(x=>x.Variant)
                 .ToListAsync(cancellationToken);
@@ -60,6 +61,8 @@ public class GetLocationQueryHandler : IRequestHandler<GetLocationQuery, (IEnume
                 .Select(x => new LocationListItemDto
                 {
                     PublicId = x.PublicId,
+                    AuthorName = x.CreatedBy.PublicNick,
+                    AuthorPublicId = x.CreatedBy.PublicId,
                     Name = x.Name,
                     Text = x.Text,
                     Lat = x.Coordinates.Y,

@@ -1,9 +1,10 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useSidebarPermission } from "../features/auth/hooks/useSidebarPermission";
 import { cn } from "../lib/utils";
 import { ChevronDown, LogOut, PanelLeftClose, PanelLeftOpen, User } from "lucide-react";
 import { useState } from "react";
 import type { SidebarItem } from "../utils/sidebar-items";
+import { useAuthStore } from "../store/auth-store";
 
 interface SidebarProps {
     collapsed: boolean;
@@ -75,6 +76,7 @@ const SidebarNavItem = ({ item, collapsed }: { item: SidebarItem; collapsed: boo
 
 export const Sidebar = ({ collapsed, onToggle, userNick, onLogout }: SidebarProps) => {
     const items = useSidebarPermission();
+    const userId = useAuthStore((s) => s.userId);
 
     return (
         <aside
@@ -110,15 +112,15 @@ export const Sidebar = ({ collapsed, onToggle, userNick, onLogout }: SidebarProp
                     collapsed ? "flex flex-col items-center gap-2" : "space-y-2",
                 )}>
                     {!collapsed && userNick && (
-                        <div className="flex items-center gap-2 text-forest-200 px-1">
+                        <Link to={userId ? `/profile/${userId}` : "#"} className="flex items-center gap-2 text-forest-200 px-1 hover:text-mushroom-100 transition-colors">
                             <User className="h-4 w-4 shrink-0" />
                             <span className="text-sm font-medium truncate">{userNick}</span>
-                        </div>
+                        </Link>
                     )}
                     {collapsed && userNick && (
-                        <div className="text-forest-300" title={userNick}>
+                        <Link to={userId ? `/profile/${userId}` : "#"} className="text-forest-300 hover:text-mushroom-100 transition-colors" title={userNick}>
                             <User className="h-5 w-5" />
-                        </div>
+                        </Link>
                     )}
                     {onLogout && (
                         <button
@@ -130,7 +132,7 @@ export const Sidebar = ({ collapsed, onToggle, userNick, onLogout }: SidebarProp
                             title={collapsed ? "Logout" : undefined}
                         >
                             <LogOut className="h-4 w-4 shrink-0" />
-                            {!collapsed && <span>Logout</span>}
+                            {!collapsed && <span>Logo   ut</span>}
                         </button>
                     )}
                 </div>
