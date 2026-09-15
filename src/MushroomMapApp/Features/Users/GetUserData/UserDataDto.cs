@@ -12,4 +12,6 @@ public class UserDataDto
     public bool IsEmailConfirmed { get; set; }
     public string RoleName  { get; set; }
     public DateTime CreatedAtUtc { get; set; }
+    public string? AvatarUrl { get; set; }
+    public string? AvatarThumbnailUrl { get; set; }
 }

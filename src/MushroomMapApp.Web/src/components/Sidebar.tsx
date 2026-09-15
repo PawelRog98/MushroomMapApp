@@ -9,7 +9,7 @@ import { useAuthStore } from "../store/auth-store";
 interface SidebarProps {
     collapsed: boolean;
     onToggle: () => void;
-    userNick?: string;
+    userNick?: string | null;
     onLogout?: () => void;
 }
 

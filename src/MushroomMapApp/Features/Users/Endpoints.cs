@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Permissions;
 using MushroomMapApp.Features.Users.AttachPermissions;
@@ -12,6 +13,7 @@ using MushroomMapApp.Features.Users.GetAllUsers;
 using MushroomMapApp.Features.Users.GetUserData;
 using MushroomMapApp.Features.Users.Suspend;
 using MushroomMapApp.Features.Users.Unsuspend;
+using MushroomMapApp.Features.Users.UpdateAvatar;
 using MushroomMapApp.Features.Users.UpdateUserData;
 using MushroomMapApp.Shared.Response;
 
@@ -146,5 +148,24 @@ public static class Endpoints
             .RequireAuthorization()
             .Produces<Response<object>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("update-avatar",
+            async ([FromForm] UpdateAvatarRequest request, ClaimsPrincipal user, IMediator Mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                    return ApiResponse.BadRequest("User not found.");
+
+                if (request.Image == null)
+                    return ApiResponse.Ok(apiMessage: "No image found.");
+
+                var result = await Mediator.Send(new UpdateAvatarCommand(request, userId), cancellationToken);
+                return ApiResponse.Ok(result);
+            })
+            .RequireAuthorization()
+            .DisableAntiforgery()
+            .Produces<Response<object>>(StatusCodes.Status200OK)
+            .Produces<Response<ErrorResponse>>(StatusCodes.Status400BadRequest);
     }
 }

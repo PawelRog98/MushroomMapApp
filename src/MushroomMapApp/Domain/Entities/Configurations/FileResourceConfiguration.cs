@@ -37,6 +37,11 @@ public class FileResourceConfiguration : IEntityTypeConfiguration<FileResource>
             .HasPrincipalKey(x => x.Id)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasOne<User>()
+            .WithMany(u => u.FileResources)
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(x => x.PublicId)
             .IsUnique();
     }

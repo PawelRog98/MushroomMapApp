@@ -22,6 +22,7 @@ public class FileResource : ICommonData
     public long? LocationId { get; set; }
     public long? ParentFileResourceId { get; set; }
     public FileResource? ParentFileResource { get; set; }
+    public long? UserId { get; set; }
     public ICollection<FileResource>? Variant { get; set; }
 
     [NotMapped]

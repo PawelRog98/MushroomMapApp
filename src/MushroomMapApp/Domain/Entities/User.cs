@@ -9,6 +9,7 @@ public class User : ICommonData
         Tokens = new HashSet<Token>();
         Locations = new HashSet<Location>();
         Suspensions = new HashSet<Suspension>();
+        FileResources = new HashSet<FileResource>();
     }
 
     public long Id { get; set; }
@@ -25,8 +26,11 @@ public class User : ICommonData
     public virtual Role Role { get; set; } = null!;
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? ModifiedAtUtc { get; set; }
+    public long? AvatarFileResourceId { get; set; }
+    public virtual FileResource? AvatarFileResource { get; set; }
 
     public ICollection<Token> Tokens { get; set; }
     public ICollection<Location> Locations { get; set; }
     public ICollection<Suspension>  Suspensions { get; set; }
+    public ICollection<FileResource> FileResources { get; set; }
 }

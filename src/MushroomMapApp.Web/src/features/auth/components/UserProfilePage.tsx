@@ -5,9 +5,9 @@ import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useForm } from "react-hook-form";
 import { updateProfileSchema, type UpdateUserDataFormValues } from "../types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { AlertCircle, CheckCircle, Loader2, UserIcon } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, Camera, CheckCircle, Loader2, UserIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
 
@@ -16,8 +16,22 @@ export const UserProfilePage = () => {
     const currentUserId = useAuthStore((s) => s.userId);
     const isOwnProfile = currentUserId === id;
 
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedAvatar, setSelectedAvatar] = useState<File|null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string|null>(null);
+
     const {data: profile, isLoading, error} = useUserData(id!);
     const {mutate: updateUserData, isPending, isSuccess, error: updateError} = useUpdateProfile();
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if(!file)
+            return;
+
+        setSelectedAvatar(file);
+        setAvatarPreview(URL.createObjectURL(file));
+    }
 
     const {register, handleSubmit, reset, formState: {errors}} = useForm<UpdateUserDataFormValues>({
         resolver: zodResolver(updateProfileSchema),
@@ -35,8 +49,19 @@ export const UserProfilePage = () => {
         }
     }, [profile, reset]);
 
+    useEffect(() => {
+        return () => {
+            if(avatarPreview){
+                URL.revokeObjectURL(avatarPreview);
+            }
+        }
+    }, [avatarPreview])
+
     const onSubmit = (data: UpdateUserDataFormValues) => {
-        updateUserData(data);
+        updateUserData({
+            data,
+            avatar: selectedAvatar
+        });
     };
 
     if(isLoading){
@@ -60,13 +85,32 @@ export const UserProfilePage = () => {
             <Card>
                 <CardHeader>
                     <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-full bg-forest-100 flex items-center justify-center">
-                            <UserIcon className="h-6 w-6 text-forest-600"/>
+                        <div className="relative group">
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                onChange={handleAvatarChange}
+                            />
+                            <div onClick={() => fileInputRef.current?.click()}
+                                className="h-16 w-16 rounded-full bg-forest-100 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-forest-300 transition-all">
+                                {avatarPreview ? (
+                                    <img src={avatarPreview} alt="Avatar preview" className="h-full w-full object-cover" />
+                                ) : profile.avatarThumbnailUrl ? (
+                                    <img src={"/" + profile.avatarThumbnailUrl} alt={profile.publicNick} className="h-full w-full object-cover" />
+                                ) : (
+                                    <UserIcon className="h-8 w-8 text-forest-600"/>
+                                )}
+                            </div>
+                            {isOwnProfile && (
+                                <div onClick={() => fileInputRef.current?.click()}
+                                    className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                                    <Camera className="h-5 w-5 text-white"/>
+                                </div>
+                            )}
                         </div>
-                        <div>
-                            <CardTitle>{profile.publicNick}</CardTitle>
-                            <CardDescription></CardDescription>
-                        </div>
+                        <CardTitle>{profile.publicNick}</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent>

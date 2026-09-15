@@ -37,6 +37,11 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type UpdateUserDataFormValues = z.infer<typeof updateProfileSchema>;
 
+export type UpdateProfileInput = {
+    data: UpdateUserDataFormValues;
+    avatar?: File | null;
+}
+
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;
@@ -66,4 +71,6 @@ export interface UserProfile {
     isEmailConfirmed: boolean;
     roleName: string;
     createdAtUtc: Date;
+    avatarUrl: string | null;
+    avatarThumbnailUrl: string | null;
 }
