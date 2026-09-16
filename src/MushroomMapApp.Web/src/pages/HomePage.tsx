@@ -1,7 +1,5 @@
 import { useState, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
-import { MapPin, Plus } from "lucide-react";
-import { MushroomIcon } from "../components/icons/MushroomIcon";
+import { Plus, X } from "lucide-react";
 import { MushroomMap } from "../features/maps/components/MushroomMap";
 import type { Location, LocationPermissions } from "../features/maps/types";
 import { useDeleteLocation } from "../features/maps/hooks/useDeleteLocation";
@@ -20,75 +18,44 @@ export const HomePage = () => {
     const [isAddingMode, setIsAddingMode] = useState(false);
 
     return (
-        <div className="space-y-12">
-            <section className="relative h-[75vh] w-full rounded-3xl overflow-hidden shadow-2xl border-3 border-white group">
-                <MushroomMap
-                    locations={locations}
-                    isAddingMode={isAddingMode}
-                    onAddingComplete={() => setIsAddingMode(false)}
-                    onDeleteLocation={handleDeleteLocation}
-                    onLocationChange={setLocations}
-                />
-            </section>
+        <div className="h-full w-full relative">
+            <MushroomMap
+                locations={locations}
+                isAddingMode={isAddingMode}
+                onAddingComplete={() => setIsAddingMode(false)}
+                onDeleteLocation={handleDeleteLocation}
+                onLocationChange={setLocations}
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="hover:border-forest-300 transition-colors cursor-pointer group">
-                    <CardHeader>
-                        <MapPin className="h-8 w-8 text-forest-600 group-hover:scale-110 transition-transform" />
-                        <CardTitle className="mt-4">Explore Map</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-mushroom-500 text-sm">
-                            To bedzie cos innego pewnie z wyszukiwaniem
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card
-                    className={`transition-colors cursor-pointer group ${
-                        isAddingMode ? "border-forest-500 bg-forest-50" : "hover:border-forest-300"
+            <button
+                onClick={() => setIsAddingMode(!isAddingMode)}
+                className={`absolute bottom-6 right-6 z-[1000] flex items-center gap-2 px-4 py-3 rounded-full shadow-lg transition-all ${isAddingMode
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-mushroom-600 hover:bg-mushroom-700 text-white"
                     }`}
-                    onClick={() => setIsAddingMode(!isAddingMode)}
-                >
-                    <CardHeader>
-                        <Plus
-                            className={`h-8 w-8 text-forest-600 transition-transform ${
-                                isAddingMode ? "rotate-45" : "group-hover:scale-110"
-                            }`}
-                        />
-                        <CardTitle className="mt-4">
-                            {isAddingMode ? "Cancel Adding" : "Add Spot"}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-mushroom-500 text-sm">
-                            {isAddingMode
-                                ? "Click on the map to place your marker."
-                                : "Found a new patch? Mark it on the map for others (or just you)."}
-                        </p>
-                    </CardContent>
-                </Card>
-            </div>
+            >
+                {isAddingMode && (
+                    <span className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping" />
+                )}
+                {isAddingMode ? (
+                    <>
+                        <X className="h-5 w-5" />
+                        <span className="font-medium">Cancel</span>
+                    </>
+                ) : (
+                    <>
+                        <Plus className="h-5 w-5" />
+                        <span className="font-medium">Add Spot</span>
+                    </>
+                )}
+            </button>
 
-            <Card className="bg-forest-900 text-white overflow-hidden">
-                <div className="md:flex">
-                    <div className="p-8 md:w-2/3 space-y-4">
-                        <h2 className="text-2xl font-bold">Mushroom app hunting?</h2>
-                        <p className="text-forest-100">
-                            Cos tam jest fajne itd afsdfgdsgfdfgdfgdgdgfgfd
-                        </p>
-                        {/* <Button
-                            variant="outline"
-                            className="border-white text-white hover:bg-white hover:text-forest-900"
-                        >
-                            Open Map Dashboard
-                        </Button> */}
-                    </div>
-                    <div className="hidden md:block md:w-1/3 bg-forest-800 flex items-center justify-center">
-                        <MushroomIcon className="h-32 w-32 text-forest-700/50" />
-                    </div>
+            {/* Adding mode hint */}
+            {isAddingMode && (
+                <div className="absolute bottom-20 right-6 z-[1000] bg-forest-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
+                    Click on the map to place a marker
                 </div>
-            </Card>
+            )}
         </div>
     );
 };

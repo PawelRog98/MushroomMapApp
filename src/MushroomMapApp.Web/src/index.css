@@ -40,6 +40,11 @@ body {
     color: var(--color-mushroom-950);
 }
 
+html, body, #root {
+    height: 100%;
+}
+
 #root {
     width: 100%;
+    height: 100%;
 }

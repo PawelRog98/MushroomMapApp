@@ -93,8 +93,10 @@ export const UserProfilePage = () => {
                                 className="hidden"
                                 onChange={handleAvatarChange}
                             />
-                            <div onClick={() => fileInputRef.current?.click()}
-                                className="h-16 w-16 rounded-full bg-forest-100 flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-forest-300 transition-all">
+                            <div onClick={() => isOwnProfile ?? fileInputRef.current?.click()}
+                                className={`h-16 w-16 rounded-full bg-forest-100 flex items-center justify-center overflow-hidden transition-all 
+                                ${isOwnProfile ?? "hover:ring-2 hover:ring-forest-300 cursor-pointer"}`}>
+                                    
                                 {avatarPreview ? (
                                     <img src={avatarPreview} alt="Avatar preview" className="h-full w-full object-cover" />
                                 ) : profile.avatarThumbnailUrl ? (

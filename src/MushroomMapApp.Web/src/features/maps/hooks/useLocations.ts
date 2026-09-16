@@ -1,20 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import type { GetLocationRequest, Location, LocationPermissions } from "../types";
+import type { GetLocationRequest } from "../types";
 import { locationsApi } from "../api/locations";
-import type { ItemWithMeta } from "../../../types/api";
 
-export const useLocations =(
-    filters: GetLocationRequest,
-    onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void
-) => {
+export const useLocations = (filters: GetLocationRequest) => {
     return useQuery({
         queryKey: ["locations", filters],
-        queryFn: async () => { 
-            const locations = await locationsApi.getLocations(filters)
-            onLocationChange(locations)
-
-            return locations;
-        },
-        placeholderData: previous => previous
+        queryFn: () => locationsApi.getLocations(filters),
+        placeholderData: (previous) => previous,
+        staleTime: 30000, // 30 seconds - prevent refetching on window focus
+        refetchOnWindowFocus: false,
     });
-}
+};

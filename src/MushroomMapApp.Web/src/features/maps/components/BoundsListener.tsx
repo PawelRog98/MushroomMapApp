@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMap, useMapEvents } from "react-leaflet";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { useLocations } from "../hooks/useLocations";
@@ -6,9 +6,9 @@ import type { Location, LocationPermissions } from "../types";
 import type { ItemWithMeta } from "../../../types/api";
 
 export type Bounds = {
-    south: number; 
-    west: number; 
-    north: number; 
+    south: number;
+    west: number;
+    north: number;
     east: number;
 }
 
@@ -17,7 +17,7 @@ type MapBoundsHandlerProps = {
     onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void;
 };
 
-export const BoundsListener = ({search, onLocationChange} : MapBoundsHandlerProps) => {
+export const BoundsListener = ({ search, onLocationChange }: MapBoundsHandlerProps) => {
     const map = useMap();
 
     const getBounds = () => {
@@ -37,11 +37,19 @@ export const BoundsListener = ({search, onLocationChange} : MapBoundsHandlerProp
         moveend: () => setBounds(getBounds()),
     });
 
-    const debouncedBounds = useDebounce(bounds, 300);
+    const debouncedBounds = useDebounce(bounds, 500); // Increased debounce to 500ms
 
-    useLocations({search: search ?? null, 
+    const { data: locations } = useLocations({
+        search: search ?? null,
         ...debouncedBounds,
-    }, onLocationChange);
+    });
+
+    // Sync locations to parent state only when data changes
+    useEffect(() => {
+        if (locations) {
+            onLocationChange(locations);
+        }
+    }, [locations, onLocationChange]);
 
     return null;
 }

@@ -7,6 +7,8 @@ import { AuthLayout } from "./layouts/AuthLayout";
 import { AuthPage } from "./pages/AuthPage";
 import { getProtectedRoutes } from "./router/routes";
 import { UserProfilePage } from "./features/auth/components/UserProfilePage";
+import { MapLayout } from "./layouts/MapLayout";
+import { HomePage } from "./pages/HomePage";
 
 const App = () => {
     return (
@@ -20,10 +22,14 @@ const App = () => {
                     </Route>
 
                     <Route element={<ProtectedRoute />}>
+                        <Route element={<MapLayout />}>
+                            <Route path="/locations" element={<HomePage />} />
+                        </Route>
+
                         <Route element={<MainLayout />}>
                             <Route path="/" element={<Navigate to="/locations" replace />} />
                             {getProtectedRoutes()}
-                            <Route path="/profile/:id" element={<UserProfilePage />}/>
+                            <Route path="/profile/:id" element={<UserProfilePage />} />
                         </Route>
                     </Route>
 
