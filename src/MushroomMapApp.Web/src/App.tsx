@@ -9,6 +9,7 @@ import { getProtectedRoutes } from "./router/routes";
 import { UserProfilePage } from "./features/auth/components/UserProfilePage";
 import { MapLayout } from "./layouts/MapLayout";
 import { HomePage } from "./pages/HomePage";
+import { ProfileAuthPage } from "./features/auth/components/ProfileAuthPage";
 
 const App = () => {
     return (
@@ -18,6 +19,7 @@ const App = () => {
                     <Route path="/auth" element={<AuthLayout />}>
                         <Route path="login" element={<AuthPage />} />
                         <Route path="register" element={<AuthPage />} />
+                        <Route path="verify-email" element={< ProfileAuthPage />} />
                         <Route index element={<Navigate to="login" replace />} />
                     </Route>
 

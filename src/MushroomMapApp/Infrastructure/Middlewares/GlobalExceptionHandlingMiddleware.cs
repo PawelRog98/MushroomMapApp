@@ -33,7 +33,7 @@ public class GlobalExceptionHandlingMiddleware
     private static Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "application/json";
-        
+
         ErrorResponse response;
 
         if (exception is MainHttpException httpException)
@@ -44,8 +44,13 @@ public class GlobalExceptionHandlingMiddleware
         else if (exception is ValidationException validationException)
         {
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            response = new ErrorResponse("Validation failed", 
+            response = new ErrorResponse("Validation failed",
                 validationException.Errors.Select(e => e.ErrorMessage).ToArray());
+        }
+        else if (exception is NotActiveUserException notActiveUserException)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            response = new ErrorResponse(notActiveUserException.Message);
         }
         else
         {
@@ -57,7 +62,7 @@ public class GlobalExceptionHandlingMiddleware
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         });
-        
+
         return context.Response.WriteAsync(json);
     }
 }

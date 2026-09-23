@@ -37,9 +37,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddHttpContextAccessor();
 var mushroomMapSpecificOrigins = builder.Services.AddCorsPolicy(builder.Configuration);
-builder.Services.AddInfrastructureServices(redisConnection);
+builder.Services.AddInfrastructureServices(redisConnection, builder.Configuration);
 builder.Services.AddPersistence(connectionString);
 builder.Services.AddBackgroundJobs(connectionString);
+builder.Services.AddJobs();
 builder.Services.AddJwtAuthentication(jwtSettings);
 builder.Services.AddCommonFeatures();
 builder.Services.AddLocationsFeature();

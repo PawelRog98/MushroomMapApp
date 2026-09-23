@@ -44,6 +44,9 @@ public class Handler : IRequestHandler<Command, AuthTokenDto>
             if (verificationResult == PasswordVerificationResult.Failed)
                 throw new BadRequestException("Invalid user data.");
 
+            if(user.IsEmailConfirmed == false)
+                throw new NotActiveUserException();
+
             var userModel = new UserModel(user.Id, user.FirstName, user.LastName, user.Role.Name, user.PublicNick);
             var token = await _authService.GenerateJwtToken(userModel, cancellationToken);
 

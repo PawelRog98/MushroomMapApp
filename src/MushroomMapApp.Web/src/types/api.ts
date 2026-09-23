@@ -6,6 +6,14 @@ export interface ApiResponse<T> {
     metaData: any | null;
 }
 
+export interface ErrorResponse{
+    success?: boolean;
+    data?: string;
+    errors?: unknown;
+    metaData?: unknown;
+    message?: string;
+}
+
 export interface ItemWithMeta<TData, TMeta> {
     data: TData;
     meta: TMeta;
@@ -16,3 +24,5 @@ export interface ResourcePermissions{
     canEdit: boolean;
     canDelete: boolean;
 }
+
+

@@ -74,3 +74,12 @@ export interface UserProfile {
     avatarUrl: string | null;
     avatarThumbnailUrl: string | null;
 }
+
+export interface CreateNewVerificationTokenRequest{
+    email: string;
+}
+
+export interface AcctivateAccountRequest{
+    code: string;
+    email: string;
+}

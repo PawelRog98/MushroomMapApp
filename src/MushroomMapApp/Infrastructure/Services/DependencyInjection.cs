@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Interfaces;
+using MushroomMapApp.Domain.Models;
 using MushroomMapApp.Domain.Repositories;
 using MushroomMapApp.Infrastructure.Services.Authorization;
+using MushroomMapApp.Infrastructure.Services.Email.Smtp;
 using MushroomMapApp.Infrastructure.Services.FileStorage;
 using StackExchange.Redis;
 
@@ -11,7 +16,7 @@ namespace MushroomMapApp.Infrastructure.Services;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, string redisConnection)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, string redisConnection, IConfiguration configuration)
     {
         ConnectionMultiplexer.Connect(redisConnection);
 
@@ -20,6 +25,10 @@ public static class DependencyInjection
             options.Configuration = redisConnection;
             options.InstanceName = "AppCacheData_";
         });
+
+        var emailSettings = new EmailSettings();
+        configuration.GetSection("EmailConfiguration").Bind(emailSettings);
+        services.AddSingleton(emailSettings);
 
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IAuthService, AuthService>();
@@ -34,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IPermissionCacheBuilder, PermissionCacheBuilder>();
         services.AddScoped<ICurrentUser, CurrentUser>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
 
         return services;
     }

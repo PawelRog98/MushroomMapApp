@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Permissions;
+using MushroomMapApp.Features.Users.ActivateAccount;
 using MushroomMapApp.Features.Users.AttachPermissions;
 using MushroomMapApp.Features.Users.GetPermissions;
 using MushroomMapApp.Features.Users.Login;
@@ -14,6 +15,7 @@ using MushroomMapApp.Features.Users.GetUserData;
 using MushroomMapApp.Features.Users.Suspend;
 using MushroomMapApp.Features.Users.Unsuspend;
 using MushroomMapApp.Features.Users.UpdateAvatar;
+using MushroomMapApp.Features.Users.CreateNewVerificationToken;
 using MushroomMapApp.Features.Users.UpdateUserData;
 using MushroomMapApp.Shared.Response;
 
@@ -167,5 +169,24 @@ public static class Endpoints
             .DisableAntiforgery()
             .Produces<Response<object>>(StatusCodes.Status200OK)
             .Produces<Response<ErrorResponse>>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("create-verification-token",
+            async (CreateNewVerificationTokenRequest request, IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await mediator.Send(new CreateNewVerificationTokenCommand(request), cancellationToken);
+                return ApiResponse.Ok<object>("Verification token created successfully.");
+            })
+            .Produces<Response<object>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapPost("activate-account",
+            async (ActivateAccountRequest rquest, IMediator Mediator, CancellationToken cancellationToken) =>
+            {
+                var result = await Mediator.Send(new ActivateAccountCommand(rquest), cancellationToken);
+                return ApiResponse.Ok(result);
+            })
+            .Produces<Response<object>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
+            .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
     }
 }

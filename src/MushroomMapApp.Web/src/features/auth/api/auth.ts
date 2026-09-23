@@ -1,5 +1,5 @@
 import api from "../../../lib/axios";
-import type { AuthResponse, LoginFormValues, RegisterFormValues, UpdateUserDataFormValues, UserPermissions, UserProfile } from "../types";
+import type { AcctivateAccountRequest, AuthResponse, CreateNewVerificationTokenRequest, LoginFormValues, RegisterFormValues, UpdateUserDataFormValues, UserPermissions, UserProfile } from "../types";
 import type { ApiResponse } from "../../../types/api";
 
 export const authApi = {
@@ -33,6 +33,14 @@ export const authApi = {
     },
     updateUserAvatar: async(formData: FormData) => {
         const response = await api.post("/users/update-avatar", formData);
+        return response.data.data;
+    },
+    createNewToken: async(data: CreateNewVerificationTokenRequest) => {
+        const response = await api.post("/users/create-verification-token", data);
+        return response.data.data;
+    },
+    acctivateAccount: async(data: AcctivateAccountRequest) => {
+        const response = await api.post("/users/activate-account", data);
         return response.data.data;
     }
 };

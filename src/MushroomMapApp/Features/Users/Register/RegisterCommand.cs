@@ -8,6 +8,7 @@ using MushroomMapApp.Domain.Enums;
 using MushroomMapApp.Domain.Exceptions;
 using MushroomMapApp.Shared.Response;
 using System.Security.Cryptography;
+using MushroomMapApp.Features.Events;
 
 namespace MushroomMapApp.Features.Users.Register;
 
@@ -26,11 +27,13 @@ public class Handler : IRequestHandler<Command, Unit>
 {
     private readonly AppDbContext _context;
     private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IMediator _mediator;
 
-    public Handler(AppDbContext context, IPasswordHasher<User> passwordHasher)
+    public Handler(AppDbContext context, IPasswordHasher<User> passwordHasher,  IMediator mediator)
     {
         _context = context;
         _passwordHasher = passwordHasher;
+        _mediator = mediator;
     }
 
     public async Task<Unit> Handle(Command command, CancellationToken cancellationToken)
@@ -77,7 +80,7 @@ public class Handler : IRequestHandler<Command, Unit>
             var verificationToken = new Token
             {
                 UserId = user.Id,
-                TokenData = Convert.ToHexString(RandomNumberGenerator.GetBytes(64)),
+                TokenData = Convert.ToHexString(RandomNumberGenerator.GetBytes(5)),
                 ExpireDateTime = DateTime.UtcNow.AddHours(3),
                 TokenType = TokenType.ActivationToken
             };
@@ -86,6 +89,9 @@ public class Handler : IRequestHandler<Command, Unit>
             await _context.SaveChangesAsync(cancellationToken);
 
             await transaction.CommitAsync(cancellationToken);
+
+            await _mediator.Publish(new UserRegisteredEvent(user.Email, verificationToken.TokenData),
+                cancellationToken);
 
             return Unit.Value;
         }

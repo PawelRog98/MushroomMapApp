@@ -3,6 +3,8 @@ using Hangfire.PostgreSql;
 using MushroomMapApp.Features.Jobs.Abstraction;
 using Npgsql;
 using System.Reflection;
+using MushroomMapApp.Features.Jobs.Triggered;
+using MushroomMapApp.Features.Jobs.Triggered.Interfaces;
 
 namespace MushroomMapApp.Infrastructure.Jobs;
 
@@ -45,6 +47,13 @@ public static class DependencyInjection
             options.WorkerCount = Environment.ProcessorCount * 5;
             options.ServerName = "MushroomMapApp_Server";
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddJobs(this IServiceCollection services)
+    {
+        services.AddScoped<ISendVerificationJob, SendVerificationCodeJob>();
 
         return services;
     }
