@@ -65,6 +65,7 @@ public class UpdateAvatarCommandHandler : IRequestHandler<UpdateAvatarCommand, U
                 {
                     oldFiles.Add(oldThumb.FileName);
                     await _fileStorage.DeleteFile(oldThumb.FileName, cancellationToken);
+                    _context.FileResources.Remove(oldThumb);
                 }
 
                 _context.FileResources.Remove(user.AvatarFileResource);

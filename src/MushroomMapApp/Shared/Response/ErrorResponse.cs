@@ -12,8 +12,9 @@ public class ErrorResponse : Response<object>
         Success = false;
     }
     
-    public  ErrorResponse(string message) : base(message)
+    public  ErrorResponse(string message)
     {
+        Message = message;
         Success = false;
     }
 
@@ -28,8 +29,9 @@ public class ErrorResponse : Response<object>
         MetaData = metaData;
     }
 
-    public ErrorResponse(string message, dynamic metaData) : base(message)
+    public ErrorResponse(string message, dynamic metaData)
     {
+        Message = message;
         Success = false;
         MetaData = metaData;
     }
