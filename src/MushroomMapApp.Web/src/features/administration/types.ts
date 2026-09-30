@@ -37,6 +37,14 @@ export type SuspensionUserPopupProps = {
     isPending: boolean;
 };
 
+export type UnsuspendUserPopupProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    user: UserListItem | null;
+    onConfirm: () => void;
+    isPending: boolean;
+};
+
 export type UserPermissionsPopupProps = {
     isOpen: boolean;
     onClose: () => void;

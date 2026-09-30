@@ -29,7 +29,7 @@ public class SuspendUserCommandHandler : IRequestHandler<SuspendUserCommand, Uni
                 throw new BadRequestException("Invalid user data.");
 
             var date = DateTime.UtcNow.AddDays(request.Request.Days);
-            var suspensionEndDateFull = new DateTime(date.Year, date.Month, date.Day, 23, 59,  59, 999);
+            var suspensionEndDateFull = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59, 999, DateTimeKind.Utc);
 
             var suspension = new Suspension
             {

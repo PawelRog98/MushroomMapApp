@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using MushroomMapApp.Domain.Entities;
 using MushroomMapApp.Domain.Permissions;
+using MushroomMapApp.Features.Common.Pagination;
 using MushroomMapApp.Features.Users.ActivateAccount;
 using MushroomMapApp.Features.Users.AttachPermissions;
 using MushroomMapApp.Features.Users.GetPermissions;
@@ -77,13 +78,27 @@ public static class Endpoints
         .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapGet("get-all",
-            async (IMediator mediator, CancellationToken cancellationToken) =>
+            async ([AsParameters] PaginationRequest paging,
+                [AsParameters] SortRequest sorting,
+                IMediator mediator,
+                CancellationToken cancellationToken) =>
             {
-                var result = await mediator.Send(new GetAllUsersQuery(), cancellationToken);
-                return ApiResponse.Ok(result);
+                var result = await mediator.Send(new GetAllUsersQuery(paging, sorting), cancellationToken);
+                return ApiResponse.Ok(result.items,
+                    metaDataAction: md =>
+                    {
+                        md.currentPage = result.Page;
+                        md.pageSize = result.PageSize;
+                        md.totalCount = result.TotalCount;
+                        md.totalPages = result.TotalPages;
+                        md.hasPrevious = result.HasPrevious;
+                        md.hasNext = result.HasNext;
+                        md.sortBy = sorting.SortBy ?? "nick";
+                        md.sortDir =  sorting.IsDescending ? "desc" : "asc";
+                    });
             })
             .RequireAuthorization(Permissions.AdministratorDashboard.UserManagment.Code)
-            .Produces<Response<List<UserListItemDto>>>(StatusCodes.Status200OK)
+            .Produces<Response<IReadOnlyList<UserListItemDto>>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPost("suspend",

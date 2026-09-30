@@ -1,18 +1,39 @@
 import { useState } from "react";
-import { useUsers } from "../hooks/useUsers";
+import { useUsers, DEFAULT_PAGE_SIZE } from "../hooks/useUsers";
 import { useSetPermissions } from "../hooks/useSetPermissions";
 import type { UserListItem } from "../types";
 import { Loader2, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
+import { Pagination } from "../../../components/ui/Pagination";
+import { SortHeader } from "../../../components/ui/SortHeader";
+import { cn } from "../../../lib/utils";
+import { getApiErrorMessage } from "../../../lib/api-error";
+import { DEFAULT_SORT, type SortBy } from "../../../types/api";
 import { UserPermissionsPopup } from "./UserPermissionsPopup";
 
 export const PermissionPage = () => {
-    const { data: users, isLoading } = useUsers();
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+    const [sort, setSort] = useState<SortBy>(DEFAULT_SORT);
+    const { data, isLoading, isFetching, isPlaceholderData, isError, error } = useUsers(page, pageSize, sort);
     const { mutate: setPermissions, isPending } = useSetPermissions();
+
+    const users = data?.items;
+    const paging = data?.paging;
+    const loadErrorMessage = isError ? getApiErrorMessage(error, "Failed to load users.") : null;
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
+
+    if (paging && paging.totalPages > 0 && page > paging.totalPages) {
+        setPage(paging.totalPages);
+    }
+
+    const handleSort = (next: SortBy) => {
+        setSort(next);
+        setPage(1);
+    };
 
     const openModal = (data: UserListItem) => {
         setModalOpen(true);
@@ -47,14 +68,19 @@ export const PermissionPage = () => {
                     <CardTitle>Users</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="overflow-x-auto">
+                    {loadErrorMessage && (
+                        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                            {loadErrorMessage}
+                        </div>
+                    )}
+                    <div className={cn("overflow-x-auto", isPlaceholderData && "opacity-60 transition-opacity")}>
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b border-mushroom-200">
-                                    <th className="text-left py-3 px-4 font-medium text-mushroom-700">Nick</th>
-                                    <th className="text-left py-3 px-4 font-medium text-mushroom-700">First Name</th>
-                                    <th className="text-left py-3 px-4 font-medium text-mushroom-700">Last Name</th>
-                                    <th className="text-left py-3 px-4 font-medium text-mushroom-700">Email</th>
+                                    <SortHeader label="Nick" column="nick" sort={sort} onSort={handleSort} />
+                                    <SortHeader label="First Name" column="firstname" sort={sort} onSort={handleSort} />
+                                    <SortHeader label="Last Name" column="lastname" sort={sort} onSort={handleSort} />
+                                    <SortHeader label="Email" column="email" sort={sort} onSort={handleSort} />
                                     <th className="text-left py-3 px-4 font-medium text-mushroom-700">Role</th>
                                     <th className="text-right py-3 px-4 font-medium text-mushroom-700">Actions</th>
                                 </tr>
@@ -83,6 +109,17 @@ export const PermissionPage = () => {
                             </tbody>
                         </table>
                     </div>
+                    <Pagination
+                        page={page}
+                        pageSize={pageSize}
+                        totalCount={paging?.totalCount ?? 0}
+                        onPageChange={setPage}
+                        onPageSizeChange={(size) => {
+                            setPageSize(size);
+                            setPage(1);
+                        }}
+                        isFetching={isFetching}
+                    />
                 </CardContent>
             </Card>
 

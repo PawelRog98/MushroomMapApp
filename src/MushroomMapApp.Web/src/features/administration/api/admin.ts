@@ -1,11 +1,25 @@
 import api from "../../../lib/axios";
-import type { ApiResponse } from "../../../types/api";
+import type { ApiResponse, Paged, PagingMeta, SortDir } from "../../../types/api";
 import type { UserListItem, SuspendUserRequest, UnsuspendUserRequest, UserPermissionsDto, SetPermissionsRequest } from "../types";
 
 export const adminApi = {
-    getAllUsers: async (): Promise<UserListItem[]> => {
-        const response = await api.get<ApiResponse<UserListItem[]>>("/users/get-all");
-        return response.data.data;
+    getAllUsers: async (params: { page: number; pageSize: number; sortBy?: string; sortDir?: SortDir }): Promise<Paged<UserListItem>> => {
+        const response = await api.get<ApiResponse<UserListItem[]>>("/users/get-all", { params });
+        const items = response.data.data ?? [];
+        const meta = response.data.metaData as PagingMeta | null;
+        return {
+            items,
+            paging: meta ?? {
+                currentPage: params.page,
+                pageSize: params.pageSize,
+                totalCount: items.length,
+                totalPages: 1,
+                hasPrevious: false,
+                hasNext: false,
+                sortBy: params.sortBy ?? "nick",
+                sortDir: params.sortDir ?? "asc",
+            },
+        };
     },
     suspendUser: async (data: SuspendUserRequest): Promise<void> => {
         await api.post("/users/suspend", data);
