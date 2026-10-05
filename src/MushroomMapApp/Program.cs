@@ -105,3 +105,5 @@ app.MapReactionsEndpoints();
 app.MapFileEndpoints();
 
 app.Run();
+
+public partial class Program;

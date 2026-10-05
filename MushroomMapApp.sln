@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MushroomMapApp.Migrator", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MushroomMap.UnitTests", "tests\MushroomMap.UnitTests\MushroomMap.UnitTests.csproj", "{061BE42C-5155-45C2-9EF1-2DCA027FE839}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MushroomMap.IntegrationTests", "tests\MushroomMap.IntegrationTests\MushroomMap.IntegrationTests.csproj", "{F877529F-557B-49E2-B565-7FFB7DCAF32E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +36,15 @@ Global
 		{061BE42C-5155-45C2-9EF1-2DCA027FE839}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{061BE42C-5155-45C2-9EF1-2DCA027FE839}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{061BE42C-5155-45C2-9EF1-2DCA027FE839}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F877529F-557B-49E2-B565-7FFB7DCAF32E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F877529F-557B-49E2-B565-7FFB7DCAF32E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F877529F-557B-49E2-B565-7FFB7DCAF32E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F877529F-557B-49E2-B565-7FFB7DCAF32E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2FEA8F67-9B31-4814-AD1D-4A66D3D573B0} = {776A5DB9-AC99-4E44-A80C-9C17F3C9857A}
 		{256E2F1E-BCB6-4708-AE79-F8C57BBB2DB2} = {776A5DB9-AC99-4E44-A80C-9C17F3C9857A}
 		{061BE42C-5155-45C2-9EF1-2DCA027FE839} = {52292166-22B1-43B2-B06C-596D98B9215B}
+		{F877529F-557B-49E2-B565-7FFB7DCAF32E} = {52292166-22B1-43B2-B06C-596D98B9215B}
 	EndGlobalSection
 EndGlobal

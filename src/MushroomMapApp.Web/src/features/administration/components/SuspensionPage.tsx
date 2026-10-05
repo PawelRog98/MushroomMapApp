@@ -52,7 +52,7 @@ export const SuspensionPage = () => {
 
     const handleUnsuspend = (user: UserListItem) => {
         setUnsuspendTarget(user);
-        setIsUnsuspendModalOpen(true);
+        setIsUnsuspendModalOpen(true);  
     };
 
     const closeUnsuspendModal = () => {
