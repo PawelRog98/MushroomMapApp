@@ -30,7 +30,7 @@ public static class Endpoints
 
         group.MapPost("login", async (LoginRequest request, IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new MushroomMapApp.Features.Users.Login.Command(request), cancellationToken);
+            var result = await mediator.Send(new Login.Command(request), cancellationToken);
             return ApiResponse.Ok(result);
         })
         .Produces<Response<AuthTokenDto>>(StatusCodes.Status200OK)
@@ -38,7 +38,7 @@ public static class Endpoints
 
         group.MapPost("register", async (RegisterRequest request, IMediator mediator, CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new MushroomMapApp.Features.Users.Register.Command(request), cancellationToken);
+            var result = await mediator.Send(new Register.Command(request), cancellationToken);
             return ApiResponse.Ok(result);
         })
         .Produces<Response<string>>(StatusCodes.Status200OK)
@@ -58,7 +58,7 @@ public static class Endpoints
             if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
                 return ApiResponse.BadRequest("User not found.");
 
-            await mediator.Send(new MushroomMapApp.Features.Users.Logout.Command(userId), cancellationToken);
+            await mediator.Send(new Logout.Command(userId), cancellationToken);
             return ApiResponse.Ok<string>("Logged out successfully.");
         })
         .RequireAuthorization()
@@ -126,24 +126,24 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPost("set-permission",
-                async (AttachPermissionsRequest request, ClaimsPrincipal user, IMediator Mediator,
+                async (AttachPermissionsRequest request, ClaimsPrincipal user, IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
                     var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
                     if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
                         return ApiResponse.BadRequest("User not found.");
 
-                    var result = await Mediator.Send(new AttachPermissionsCommand(userId, request), cancellationToken);
+                    var result = await mediator.Send(new AttachPermissionsCommand(userId, request), cancellationToken);
                     return ApiResponse.Ok(result);
                 })
             .RequireAuthorization(Permissions.AdministratorDashboard.PermissionsEdit.Code)
-            .Produces<Response<object>>( StatusCodes.Status200OK)
+            .Produces<Response<object>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapGet("get-user-data",
-            async (Guid userPublicId, IMediator Mediator, CancellationToken cancellationToken) =>
+            async (Guid userPublicId, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var result = await Mediator.Send(new GetUserDataQuery(new GetUserDataRequest(userPublicId)), cancellationToken);
+                var result = await mediator.Send(new GetUserDataQuery(new GetUserDataRequest(userPublicId)), cancellationToken);
                 return ApiResponse.Ok(result);
             })
             .RequireAuthorization()
@@ -151,14 +151,14 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPut("update-user-data",
-                async (UpdateUserDataRequest request, ClaimsPrincipal user, IMediator Mediator,
+                async (UpdateUserDataRequest request, ClaimsPrincipal user, IMediator mediator,
                     CancellationToken cancellationToken) =>
                 {
                     var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
                     if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
                         return ApiResponse.BadRequest("User not found.");
 
-                    var result = await Mediator.Send(new UpdateUserDataUpdateCommand(request, userId),
+                    var result = await mediator.Send(new UpdateUserDataUpdateCommand(request, userId),
                         cancellationToken);
                     return ApiResponse.Ok(result);
                 })
@@ -167,7 +167,7 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPost("update-avatar",
-            async ([FromForm] UpdateAvatarRequest request, ClaimsPrincipal user, IMediator Mediator,
+            async ([FromForm] UpdateAvatarRequest request, ClaimsPrincipal user, IMediator mediator,
                 CancellationToken cancellationToken) =>
             {
                 var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -177,13 +177,13 @@ public static class Endpoints
                 if (request.Image == null)
                     return ApiResponse.Ok(apiMessage: "No image found.");
 
-                var result = await Mediator.Send(new UpdateAvatarCommand(request, userId), cancellationToken);
+                var result = await mediator.Send(new UpdateAvatarCommand(request, userId), cancellationToken);
                 return ApiResponse.Ok(result);
             })
             .RequireAuthorization()
             .DisableAntiforgery()
             .Produces<Response<object>>(StatusCodes.Status200OK)
-            .Produces<Response<ErrorResponse>>(StatusCodes.Status400BadRequest);
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPost("create-verification-token",
             async (CreateNewVerificationTokenRequest request, IMediator mediator, CancellationToken cancellationToken) =>
@@ -195,9 +195,9 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPost("activate-account",
-            async (ActivateAccountRequest rquest, IMediator Mediator, CancellationToken cancellationToken) =>
+            async (ActivateAccountRequest request, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var result = await Mediator.Send(new ActivateAccountCommand(rquest), cancellationToken);
+                var result = await mediator.Send(new ActivateAccountCommand(request), cancellationToken);
                 return ApiResponse.Ok(result);
             })
             .Produces<Response<object>>(StatusCodes.Status200OK)

@@ -32,7 +32,7 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status403Forbidden);
 
         group.MapGet("get-reactions/{locationPublicId:guid}",
-            async (Guid locationPublicId, IMediator mediator, ClaimsPrincipal? user, CancellationToken cancellationToken) =>
+            async (Guid locationPublicId, ClaimsPrincipal? user, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 long? userId = null;
                 var userIdStr = user?.FindFirstValue(ClaimTypes.NameIdentifier);

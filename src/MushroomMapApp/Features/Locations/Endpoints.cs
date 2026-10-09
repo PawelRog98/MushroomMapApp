@@ -27,8 +27,8 @@ public static class Endpoints
                 var response = await mediator.Send(new CreateLocationCommand(request, userId), cancellationToken);
                 return ApiResponse.Ok(response);
             })
-            .DisableAntiforgery()
             .RequireAuthorization()
+            .DisableAntiforgery()
             .Produces<Response<LocationDto>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ErrorResponse>(StatusCodes.Status403Forbidden);
@@ -49,11 +49,11 @@ public static class Endpoints
                     });
             })
             .RequireAuthorization(Permissions.Locations.View.Code)
-            .Produces<Response<LocationDto>>(StatusCodes.Status200OK)
+            .Produces<Response<IEnumerable<LocationListItemDto>>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
 
         group.MapPut("update-location/{id:guid}",
-            async (Guid id,[FromForm] UpdateLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+            async (Guid id, [FromForm] UpdateLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
             {
                 var userIdStr = user.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -63,8 +63,8 @@ public static class Endpoints
                 var response = await mediator.Send(new UpdateLocationCommand(id, request, userId), cancellationToken);
                 return ApiResponse.Ok(response);
             })
-            .DisableAntiforgery()
             .RequireAuthorization()
+            .DisableAntiforgery()
             .Produces<Response<LocationDto>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)

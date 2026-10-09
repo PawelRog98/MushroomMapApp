@@ -112,6 +112,20 @@ public class GlobalExceptionHandlingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_ReturnsForbidden_WhenSuspendedUserExceptionIsThrown()
+    {
+        var suspendUntil = new DateTime(2026, 10, 20, 12, 30, 0, DateTimeKind.Utc);
+
+        await InvokeAsync(_ => throw new SuspendedUserException(suspendUntil));
+
+        _httpContext.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+
+        var body = ReadResponseBody();
+        body.GetProperty("success").GetBoolean().Should().BeFalse();
+        body.GetProperty("message").GetString().Should().Be("User is suspended until: 2026-10-20 12:30:00");
+    }
+
+    [Fact]
     public async Task InvokeAsync_ReturnsInternalServerError_WhenUnexpectedExceptionIsThrown()
     {
         await InvokeAsync(_ => throw new InvalidOperationException("boom"));

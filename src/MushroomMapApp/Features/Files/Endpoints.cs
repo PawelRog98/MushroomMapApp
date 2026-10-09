@@ -21,6 +21,6 @@ public static class Endpoints
             })
             .RequireAuthorization()
             .Produces<Response<ImageResultDto>>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound);
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
     }
 }

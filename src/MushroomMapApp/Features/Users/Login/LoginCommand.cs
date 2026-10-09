@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MushroomMapApp.Domain.Data;
 using MushroomMapApp.Domain.Entities;
+using MushroomMapApp.Domain.Enums;
 using MushroomMapApp.Domain.Interfaces;
 using MushroomMapApp.Domain.Models;
 using MushroomMapApp.Domain.Exceptions;
@@ -46,6 +47,14 @@ public class Handler : IRequestHandler<Command, AuthTokenDto>
 
             if(user.IsEmailConfirmed == false)
                 throw new NotActiveUserException();
+
+            var activeSuspension = await _context.Suspensions
+                .FirstOrDefaultAsync(s => s.UserId == user.Id
+                    && s.Status == SuspensionStatusEnum.Active
+                    && (s.EndDate == null || s.EndDate >= DateTime.UtcNow), cancellationToken);
+
+            if (activeSuspension != null)
+                throw new SuspendedUserException(activeSuspension.EndDate ?? DateTime.MaxValue);
 
             var userModel = new UserModel(user.Id, user.FirstName, user.LastName, user.Role.Name, user.PublicNick);
             var token = await _authService.GenerateJwtToken(userModel, cancellationToken);

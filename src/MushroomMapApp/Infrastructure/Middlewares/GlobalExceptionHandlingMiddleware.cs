@@ -52,6 +52,11 @@ public class GlobalExceptionHandlingMiddleware
             context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             response = new ErrorResponse(notActiveUserException.Message);
         }
+        else if (exception is SuspendedUserException suspendedUserException)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+            response = new ErrorResponse(suspendedUserException.Message);
+        }
         else
         {
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

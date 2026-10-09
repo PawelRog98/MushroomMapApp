@@ -8,11 +8,12 @@ using MushroomMapApp.Features.Users;
 using MushroomMapApp.Infrastructure.Jobs;
 using MushroomMapApp.Infrastructure.Middlewares;
 using MushroomMapApp.Infrastructure.Services;
-using MushroomMapApp.Infrastructure.Jobs;
 using Hangfire;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using MushroomMapApp.Features.Files;
+using MushroomMapApp.Features.Weather;
+using MushroomMapApp.Infrastructure.ExternalApis;
 using MushroomMapApp.Infrastructure.Services.FileStorage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,13 +46,13 @@ builder.Services.AddJwtAuthentication(jwtSettings);
 builder.Services.AddCommonFeatures();
 builder.Services.AddLocationsFeature();
 builder.Services.AddSwaggerDocs();
+builder.Services.AddExternalApis();
 
 var app = builder.Build();
 
-app.UseCors(mushroomMapSpecificOrigins);
-
 app.UseGlobalExceptionHandling();
 app.UseRequestLogging();
+app.UseCors(mushroomMapSpecificOrigins);
 
 if (app.Environment.IsDevelopment())
 {
@@ -82,8 +83,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/thumbnails"
 });
 
-app.UseCors(mushroomMapSpecificOrigins);
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -102,6 +101,7 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 app.MapUsersEndpoints();
 app.MapLocationsEndpoints();
 app.MapReactionsEndpoints();
+app.MapWeatherEndpoints();
 app.MapFileEndpoints();
 
 app.Run();

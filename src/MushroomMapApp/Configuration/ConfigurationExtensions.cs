@@ -15,7 +15,7 @@ namespace MushroomMapApp.Configuration
                         AppContext.BaseDirectory,
                         "..", "..", "..", "..", "..",
                         ".env"));
-                
+
                 Env.Load(rootEnv);
             }
             else
@@ -40,6 +40,7 @@ namespace MushroomMapApp.Configuration
                 { "EmailConfiguration:Username",  Environment.GetEnvironmentVariable("EMAIL_USERNAME") ?? "" },
                 { "EmailConfiguration:Password",  Environment.GetEnvironmentVariable("EMAIL_PASSWORD") ?? "" },
                 { "EmailConfiguration:FromName",  Environment.GetEnvironmentVariable("EMAIL_FROMNAME") ?? "" },
+                { "OpenMeteo:BaseUrl",  Environment.GetEnvironmentVariable("OPEN_METEO_URL") ?? "" },
             };
 
             Console.Error.WriteLine("--- [DIAGNOSTIC] STARTING CONFIGURATION LOADING ---");

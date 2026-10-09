@@ -30,6 +30,9 @@ public static class DependencyInjection
         configuration.GetSection("EmailConfiguration").Bind(emailSettings);
         services.AddSingleton(emailSettings);
 
+        services.AddOptions<FileStorageOptions>()
+            .Bind(configuration.GetSection("FileStorage"));
+
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRedisCache, RedisCache>();

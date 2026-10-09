@@ -78,6 +78,14 @@ public class AuthService : IAuthService
         if (user is null)
             throw new BadRequestException("User not found.");
 
+        var activeSuspension = await _context.Suspensions
+            .FirstOrDefaultAsync(s => s.UserId == user.Id
+                && s.Status == SuspensionStatusEnum.Active
+                && (s.EndDate == null || s.EndDate >= DateTime.UtcNow), cancellationToken);
+
+        if (activeSuspension != null)
+            throw new SuspendedUserException(activeSuspension.EndDate ?? DateTime.MaxValue);
+
         _context.Tokens.Remove(storedToken);
 
         var userModel = new UserModel(user.Id, user.FirstName, user.LastName, user.Role.Name, user.PublicNick);
