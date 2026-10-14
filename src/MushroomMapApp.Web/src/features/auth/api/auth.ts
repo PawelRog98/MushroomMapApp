@@ -1,5 +1,5 @@
 import api from "../../../lib/axios";
-import type { AcctivateAccountRequest, AuthResponse, CreateNewVerificationTokenRequest, LoginFormValues, RegisterFormValues, UpdateUserDataFormValues, UserPermissions, UserProfile } from "../types";
+import type { AcctivateAccountRequest, AuthResponse, CreateNewVerificationTokenRequest, CreateUserLocationRequest, LoginFormValues, RegisterFormValues, UpdateUserDataFormValues, UserLocation, UserPermissions, UserProfile } from "../types";
 import type { ApiResponse } from "../../../types/api";
 
 export const authApi = {
@@ -42,5 +42,13 @@ export const authApi = {
     acctivateAccount: async(data: AcctivateAccountRequest) => {
         const response = await api.post("/users/activate-account", data);
         return response.data.data;
+    },
+    saveUserLocation: async (data: CreateUserLocationRequest) : Promise<UserLocation> => {
+        const response = await api.post("/users/create-user-location", data);
+        return response.data.data;
+    },
+    getUserLocation: async () : Promise<UserLocation | null> => {
+        const response = await api.get<ApiResponse<UserLocation | null>>("/users/get-my-location");
+        return response.data.data ?? null;
     }
 };

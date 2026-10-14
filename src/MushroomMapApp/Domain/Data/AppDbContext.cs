@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<UserRole>  UserRoles => Set<UserRole>();
     public DbSet<UserPermission>  UserPermissions => Set<UserPermission>();
     public DbSet<Suspension> Suspensions => Set<Suspension>();
+    public DbSet<UserSavedLocation> UserSavedLocations => Set<UserSavedLocation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

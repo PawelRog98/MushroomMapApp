@@ -26,9 +26,11 @@ export const SuspensionPopup = ({
     const [reason, setReason] = useState("");
 
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) 
+            return;
         const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") 
+                onClose();
         };
         window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
@@ -43,7 +45,8 @@ export const SuspensionPopup = ({
         };
     }, [isOpen]);
 
-    if (!isOpen || !user) return null;
+    if (!isOpen || !user) 
+        return null;
 
     const effectiveDays = isCustom
         ? parseInt(customDays, 10)

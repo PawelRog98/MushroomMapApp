@@ -2,14 +2,17 @@ import { useParams } from "react-router-dom"
 import { useAuthStore } from "../../../store/auth-store";
 import { useUserData } from "../hooks/useUserData";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
+import { useMyLocation } from "../hooks/useMyLocation";
+import { useSaveUserLocation } from "../hooks/useSaveUserLocation";
 import { useForm } from "react-hook-form";
 import { updateProfileSchema, type UpdateUserDataFormValues } from "../types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Camera, CheckCircle, Loader2, UserIcon } from "lucide-react";
+import { AlertCircle, Camera, CheckCircle, Loader2, MapPin, UserIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
 import { Input } from "../../../components/ui/Input";
 import { Button } from "../../../components/ui/Button";
+import { LocationPickerPopup } from "./LocationPickerPopup";
 
 export const UserProfilePage = () => {
     const {id} = useParams<{id: string}>();
@@ -19,9 +22,12 @@ export const UserProfilePage = () => {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [selectedAvatar, setSelectedAvatar] = useState<File|null>(null);
     const [avatarPreview, setAvatarPreview] = useState<string|null>(null);
+    const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
 
     const {data: profile, isLoading, error} = useUserData(id!);
     const {mutate: updateUserData, isPending, isSuccess, error: updateError} = useUpdateProfile();
+    const {data: myLocation} = useMyLocation(isOwnProfile);
+    const {mutate: saveLocation, isPending: isSavingLocation, isSuccess: isLocationSaved} = useSaveUserLocation();
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -62,6 +68,13 @@ export const UserProfilePage = () => {
             data,
             avatar: selectedAvatar
         });
+    };
+
+    const handleSaveLocation = (lat: number, lng: number) => {
+        saveLocation(
+            { lat, lng, publicId: myLocation?.publicId ?? null },
+            { onSuccess: () => setIsLocationPickerOpen(false) },
+        );
     };
 
     if(isLoading){
@@ -191,6 +204,12 @@ export const UserProfilePage = () => {
                         </div>
                     )}
                     <div className="mt-6 pt-4 border-t border-mushroom-200 space-y-3">
+                        {isLocationSaved && (
+                            <div className="flex items-center gap-2 p-3 text-sm text-green-600 bg-green-50 rounded-md">
+                                <CheckCircle className="h-4 w-4" />
+                                <span>Localization saved successfully</span>
+                            </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <p className="text-xs text-mushroom-500">Role</p>
@@ -204,10 +223,40 @@ export const UserProfilePage = () => {
                                 <p className="text-xs text-mushroom-500">Member since</p>
                                 <p className="text-sm font-medium">{new Date(profile.createdAtUtc).toLocaleDateString()}</p>
                             </div>
+                            {isOwnProfile && (
+                                <div>
+                                    <p className="text-xs text-mushroom-500">My localization</p>
+                                    <div className="flex items-center justify-between gap-2">
+                                        <p className="text-sm font-medium">
+                                            {myLocation
+                                                ? `${myLocation.lat.toFixed(4)}, ${myLocation.lng.toFixed(4)}`
+                                                : "Not set"}
+                                        </p>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setIsLocationPickerOpen(true)}
+                                        >
+                                            <MapPin className="mr-1 h-4 w-4" />
+                                            Change
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </CardContent>
             </Card>
+
+            {isLocationPickerOpen && (
+                <LocationPickerPopup
+                    isOpen={isLocationPickerOpen}
+                    onClose={() => setIsLocationPickerOpen(false)}
+                    location={myLocation ?? null}
+                    onSave={handleSaveLocation}
+                    isPending={isSavingLocation}
+                />
+            )}
         </div>
     )
 }

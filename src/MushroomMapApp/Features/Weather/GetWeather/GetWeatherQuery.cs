@@ -32,6 +32,5 @@ public class GetWeatherQueryHandler : IRequestHandler<GetWeatherQuery, WeatherDa
         await _redisCache.SetAsync(cahceKey, result, TimeSpan.FromMinutes(30), cancellationToken);
 
         return result;
-
     }
 }

@@ -5,6 +5,7 @@ type GeolocationState = {
     longitude: number | null;
     error: string | null;
     isLoading: boolean;
+    locatedAt: number | null;
 };
 
 export const useGeolocation = () => {
@@ -13,6 +14,7 @@ export const useGeolocation = () => {
         longitude: null,
         error: null,
         isLoading: false,
+        locatedAt: null,
     });
 
     const locate = useCallback(() => {
@@ -43,6 +45,7 @@ export const useGeolocation = () => {
                     longitude: position.coords.longitude,
                     error: null,
                     isLoading: false,
+                    locatedAt: Date.now(),
                 });
             },
             (error) => {

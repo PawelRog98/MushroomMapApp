@@ -4,6 +4,7 @@ import { MushroomMap } from "../features/maps/components/MushroomMap";
 import type { Location, LocationPermissions } from "../features/maps/types";
 import { useDeleteLocation } from "../features/maps/hooks/useDeleteLocation";
 import type { ItemWithMeta } from "../types/api";
+import { WeatherFloatingPanel } from "../features/weather/components/WeatherFloatingPanel";
 
 export const HomePage = () => {
     const [locations, setLocations] = useState<ItemWithMeta<Location, LocationPermissions>[]>([]);
@@ -26,6 +27,8 @@ export const HomePage = () => {
                 onDeleteLocation={handleDeleteLocation}
                 onLocationChange={setLocations}
             />
+
+            <WeatherFloatingPanel />
 
             <button
                 onClick={() => setIsAddingMode(!isAddingMode)}
@@ -50,7 +53,6 @@ export const HomePage = () => {
                 )}
             </button>
 
-            {/* Adding mode hint */}
             {isAddingMode && (
                 <div className="absolute bottom-20 right-6 z-[1000] bg-forest-800 text-white text-sm px-4 py-2 rounded-lg shadow-lg">
                     Click on the map to place a marker

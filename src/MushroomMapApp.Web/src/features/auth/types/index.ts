@@ -83,3 +83,29 @@ export interface AcctivateAccountRequest{
     code: string;
     email: string;
 }
+
+export interface CreateUserLocationRequest{
+    lat: number;
+    lng: number;
+    publicId: string | null;
+}
+
+export interface UserLocation {
+    publicId: string;
+    locationName: string;
+    lat: number;
+    lng: number;
+}
+
+export type LocationPickerPopupProps = {
+    isOpen: boolean;
+    onClose: () => void;
+    location: UserLocation | null;
+    onSave: (lat: number, lng: number) => void;
+    isPending: boolean;
+}
+
+export type Coordinates = {
+    lat: number;
+    lng: number;
+}

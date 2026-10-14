@@ -17,6 +17,8 @@ using MushroomMapApp.Features.Users.Suspend;
 using MushroomMapApp.Features.Users.Unsuspend;
 using MushroomMapApp.Features.Users.UpdateAvatar;
 using MushroomMapApp.Features.Users.CreateNewVerificationToken;
+using MushroomMapApp.Features.Users.CreateUserLocation;
+using MushroomMapApp.Features.Users.GetMyLocation;
 using MushroomMapApp.Features.Users.UpdateUserData;
 using MushroomMapApp.Shared.Response;
 
@@ -203,5 +205,33 @@ public static class Endpoints
             .Produces<Response<object>>(StatusCodes.Status200OK)
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ErrorResponse>(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("create-user-location",
+            async (CreateUserLocationRequest request, ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                    return ApiResponse.BadRequest("User not found.");
+
+                var result = await mediator.Send(new CreateUserLocationCommand(request, userId), cancellationToken);
+                return ApiResponse.Ok(result);
+            })
+            .RequireAuthorization()
+            .Produces<Response<UserLocationDto>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        group.MapGet("get-my-location",
+            async (ClaimsPrincipal user, IMediator mediator, CancellationToken cancellationToken) =>
+            {
+                var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdClaim is null || !long.TryParse(userIdClaim, out var userId))
+                    return ApiResponse.BadRequest("User not found.");
+
+                var result = await mediator.Send(new GetMyLocationQuery(userId), cancellationToken);
+                return ApiResponse.Ok(result);
+            })
+            .RequireAuthorization()
+            .Produces<Response<UserLocationDto?>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
     }
 }
