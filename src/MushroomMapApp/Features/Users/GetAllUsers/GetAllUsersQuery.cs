@@ -7,7 +7,7 @@ using MushroomMapApp.Features.Common.Pagination;
 
 namespace MushroomMapApp.Features.Users.GetAllUsers;
 
-public record GetAllUsersQuery(PaginationRequest Paging, SortRequest Sorting) : IRequest<PagedResult<UserListItemDto>>;
+public record GetAllUsersQuery(PaginationRequest Paging, SortRequest Sorting, FiltersRequest? Filters = null) : IRequest<PagedResult<UserListItemDto>>;
 
 public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, PagedResult<UserListItemDto>>
 {
@@ -24,6 +24,7 @@ public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, PagedRe
     {
         var users = _context.Users
             .AsNoTracking()
+            .ApplyUserFilters(request.Filters)
             .Include(x => x.Suspensions)
             .Include(x => x.Role);
 

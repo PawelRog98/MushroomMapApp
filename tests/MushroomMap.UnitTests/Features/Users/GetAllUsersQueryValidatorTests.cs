@@ -10,8 +10,8 @@ public class GetAllUsersQueryValidatorTests
 {
     private readonly GetAllUsersQueryValidator _validator = new(new PaginationRequestValidator());
 
-    private static GetAllUsersQuery Query(PaginationRequest? paging = null, SortRequest? sorting = null)
-        => new(paging ?? new PaginationRequest(), sorting ?? new SortRequest());
+    private static GetAllUsersQuery Query(PaginationRequest? paging = null, SortRequest? sorting = null, FiltersRequest? filters = null)
+        => new(paging ?? new PaginationRequest(), sorting ?? new SortRequest(), filters);
 
     [Fact]
     public void Validate_DefaultRequest_HasNoErrors()
@@ -104,5 +104,23 @@ public class GetAllUsersQueryValidatorTests
         var result = _validator.TestValidate(new GetAllUsersQuery(new PaginationRequest(), null!));
 
         result.ShouldHaveValidationErrorFor(x => x.Sorting);
+    }
+
+    [Fact]
+    public void Validate_NullOrShortSearch_Passes()
+    {
+        _validator.TestValidate(Query(filters: null))
+            .ShouldNotHaveAnyValidationErrors();
+        _validator.TestValidate(Query(filters: new FiltersRequest(new string('a', 100))))
+            .ShouldNotHaveValidationErrorFor(x => x.Filters!.Search);
+    }
+
+    [Fact]
+    public void Validate_SearchTooLong_HasError()
+    {
+        var result = _validator.TestValidate(Query(filters: new FiltersRequest(new string('a', 101))));
+
+        result.ShouldHaveValidationErrorFor(x => x.Filters!.Search)
+            .WithErrorMessage("Search must be at most 100 characters");
     }
 }

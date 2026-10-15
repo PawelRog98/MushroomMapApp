@@ -52,3 +52,7 @@ export type UserPermissionsPopupProps = {
     onConfirm: (permissions: string[]) => void;
     isPending: boolean;
 }
+
+export interface FiltersRequest {
+    search?: string;
+}

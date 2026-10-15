@@ -3,7 +3,7 @@ import type { ApiResponse, Paged, PagingMeta, SortDir } from "../../../types/api
 import type { UserListItem, SuspendUserRequest, UnsuspendUserRequest, UserPermissionsDto, SetPermissionsRequest } from "../types";
 
 export const adminApi = {
-    getAllUsers: async (params: { page: number; pageSize: number; sortBy?: string; sortDir?: SortDir }): Promise<Paged<UserListItem>> => {
+    getAllUsers: async (params: { page: number; pageSize: number; sortBy?: string; sortDir?: SortDir; search?: string }): Promise<Paged<UserListItem>> => {
         const response = await api.get<ApiResponse<UserListItem[]>>("/users/get-all", { params });
         const items = response.data.data ?? [];
         const meta = response.data.metaData as PagingMeta | null;

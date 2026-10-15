@@ -12,13 +12,16 @@ import { useUnsuspendUser } from "../hooks/useUnsuspendUser";
 import { SuspensionPopup } from "./SuspensionPopup";
 import { UnsuspendPopup } from "./UnsuspendPopup";
 import type { UserListItem } from "../types";
-import { Shield, ShieldOff, Loader2 } from "lucide-react";
+import { Shield, ShieldOff, Loader2, Search } from "lucide-react";
+import { Input } from "../../../components/ui/Input";
 
 export const SuspensionPage = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
     const [sort, setSort] = useState<SortBy>(DEFAULT_SORT);
-    const { data, isLoading, isFetching, isPlaceholderData, isError, error } = useUsers(page, pageSize, sort);
+    const [searchInput, setSearchInput] = useState("");
+    const [appliedSearch, setAppliedSearch] = useState("");
+    const { data, isLoading, isFetching, isPlaceholderData, isError, error } = useUsers(page, pageSize, sort, appliedSearch);
     const { mutate: suspendUser, isPending } = useSuspendUser();
     const { mutate: unsuspendUser, isPending: isUnsuspendPending } = useUnsuspendUser();
 
@@ -37,6 +40,11 @@ export const SuspensionPage = () => {
 
     const handleSort = (next: SortBy) => {
         setSort(next);
+        setPage(1);
+    };
+
+    const handleApplySearch = () => {
+        setAppliedSearch(searchInput.trim());
         setPage(1);
     };
 
@@ -71,8 +79,27 @@ export const SuspensionPage = () => {
     return (
         <div className="max-w-full mx-auto p-6 space-y-6">
             <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 gap-4">
                     <CardTitle>Users</CardTitle>
+                    <div className="flex items-center gap-2 w-full max-w-xs">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-mushroom-400" />
+                            <Input
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleApplySearch();
+                                }}
+                                placeholder="Search users..."
+                                className="pl-9"
+                                maxLength={100}
+                                aria-label="Search users"
+                            />
+                        </div>
+                        <Button variant="outline" size="sm" onClick={handleApplySearch}>
+                            Search
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {loadErrorMessage && (

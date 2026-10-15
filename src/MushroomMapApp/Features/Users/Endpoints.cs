@@ -82,10 +82,11 @@ public static class Endpoints
         group.MapGet("get-all",
             async ([AsParameters] PaginationRequest paging,
                 [AsParameters] SortRequest sorting,
+                [AsParameters] FiltersRequest filters,
                 IMediator mediator,
                 CancellationToken cancellationToken) =>
             {
-                var result = await mediator.Send(new GetAllUsersQuery(paging, sorting), cancellationToken);
+                var result = await mediator.Send(new GetAllUsersQuery(paging, sorting, filters), cancellationToken);
                 return ApiResponse.Ok(result.items,
                     metaDataAction: md =>
                     {

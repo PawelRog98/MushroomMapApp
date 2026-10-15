@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useUsers, DEFAULT_PAGE_SIZE } from "../hooks/useUsers";
 import { useSetPermissions } from "../hooks/useSetPermissions";
 import type { UserListItem } from "../types";
-import { Loader2, Shield } from "lucide-react";
+import { Loader2, Search, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
 import { Button } from "../../../components/ui/Button";
 import { Pagination } from "../../../components/ui/Pagination";
@@ -11,12 +11,15 @@ import { cn } from "../../../lib/utils";
 import { getApiErrorMessage } from "../../../lib/api-error";
 import { DEFAULT_SORT, type SortBy } from "../../../types/api";
 import { UserPermissionsPopup } from "./UserPermissionsPopup";
+import { Input } from "../../../components/ui/Input";
 
 export const PermissionPage = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
     const [sort, setSort] = useState<SortBy>(DEFAULT_SORT);
-    const { data, isLoading, isFetching, isPlaceholderData, isError, error } = useUsers(page, pageSize, sort);
+    const [searchInput, setSearchInput] = useState("");
+    const [appliedSearch, setAppliedSearch] = useState("");
+    const { data, isLoading, isFetching, isPlaceholderData, isError, error } = useUsers(page, pageSize, sort, appliedSearch);
     const { mutate: setPermissions, isPending } = useSetPermissions();
 
     const users = data?.items;
@@ -32,6 +35,11 @@ export const PermissionPage = () => {
 
     const handleSort = (next: SortBy) => {
         setSort(next);
+        setPage(1);
+    };
+
+    const handleApplySearch = () => {
+        setAppliedSearch(searchInput.trim());
         setPage(1);
     };
 
@@ -64,8 +72,27 @@ export const PermissionPage = () => {
     return (
         <div className="max-w-full mx-auto p-6 space-y-6">
             <Card>
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 gap-4">
                     <CardTitle>Users</CardTitle>
+                    <div className="flex items-center gap-2 w-full max-w-xs">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-mushroom-400" />
+                            <Input
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleApplySearch();
+                                }}
+                                placeholder="Search users..."
+                                className="pl-9"
+                                maxLength={100}
+                                aria-label="Search users"
+                            />
+                        </div>
+                        <Button variant="outline" size="sm" onClick={handleApplySearch}>
+                            Search
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {loadErrorMessage && (

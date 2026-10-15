@@ -26,5 +26,13 @@ public class GetAllUsersQueryValidator : AbstractValidator<GetAllUsersQuery>
                     || sortDir.Equals("desc", StringComparison.OrdinalIgnoreCase))
                 .WithMessage("sortDir must be 'asc' or 'desc'");
         });
+
+        When(x => x.Filters is not null, () =>
+        {
+            RuleFor(x => x.Filters!.Search)
+                .MaximumLength(100)
+                .When(search => search is not null)
+                .WithMessage("Search must be at most 100 characters");
+        });
     }
 }
