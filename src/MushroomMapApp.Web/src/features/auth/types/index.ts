@@ -42,18 +42,18 @@ export type UpdateProfileInput = {
     avatar?: File | null;
 }
 
-export interface AuthResponse {
+export type AuthResponse = {
     accessToken: string;
     refreshToken: string;
     userNick: string;
     userId: string;
 }
 
-export interface UserPermissions {
+export type UserPermissions = {
     permissions: string[];
 }
 
-export interface PermissionContextValue {
+export type PermissionContextValue = {
     permissions: ReadonlySet<string>;
     has(permissions: string): boolean;
     reload(): Promise<void>;
@@ -61,7 +61,7 @@ export interface PermissionContextValue {
     isLoaded: boolean;
 }
 
-export interface UserProfile {
+export type UserProfile = {
     publicNick: string;
     firstName: string;
     lastName: string;
@@ -75,22 +75,22 @@ export interface UserProfile {
     avatarThumbnailUrl: string | null;
 }
 
-export interface CreateNewVerificationTokenRequest{
+export type CreateNewVerificationTokenRequest = {
     email: string;
 }
 
-export interface AcctivateAccountRequest{
+export type AcctivateAccountRequest = {
     code: string;
     email: string;
 }
 
-export interface CreateUserLocationRequest{
+export type CreateUserLocationRequest = {
     lat: number;
     lng: number;
     publicId: string | null;
 }
 
-export interface UserLocation {
+export type UserLocation = {
     publicId: string;
     locationName: string;
     lat: number;
