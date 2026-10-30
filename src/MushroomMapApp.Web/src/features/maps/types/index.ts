@@ -20,6 +20,13 @@ export type EditMarkerPopupProps = {
     onCancel: () => void;
 }
 
+export type HeatmapLayerProps = {
+    points: Location[];
+    radius?: number;
+    blur?: number;
+    maxZoom?: number;
+}
+
 export type CreateLocationRequest = {
     name: string;
     text: string;

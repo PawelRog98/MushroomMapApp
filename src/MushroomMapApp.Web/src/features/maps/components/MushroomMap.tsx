@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import type { Marker as LeafletMarker } from "leaflet";
 import { useMapClick } from "../hooks/useMap";
@@ -7,11 +7,13 @@ import { NewMarkerPopup } from "./NewMarkerPopup";
 import type { Location, LocationPermissions } from "../types";
 import { BoundsListener } from "./BoundsListener";
 import type { ItemWithMeta } from "../../../types/api";
+import { HeatmapLayer } from "./HeatmapLayer";
 
 export type MushroomMapProps = {
     locations: ItemWithMeta<Location, LocationPermissions>[];
     isAddingMode: boolean;
     search?: string | null;
+    heatMapEnabled: boolean;
     onAddingComplete: () => void;
     onDeleteLocation: (id: string | null, lat: number, lng: number) => void;
     onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void;
@@ -26,6 +28,7 @@ export const MushroomMap = ({
     locations,
     isAddingMode,
     search,
+    heatMapEnabled,
     onAddingComplete,
     onDeleteLocation,
     onLocationChange
@@ -42,6 +45,11 @@ export const MushroomMap = ({
         [isAddingMode],
     );
 
+    const heatmapPoints = useMemo(
+        () => locations.filter((l) => l.meta.canView).map((l) => l.data),
+        [locations],
+    );
+
     const resetAdding = useCallback(() => {
         setTempCoords(null);
         onAddingComplete();
@@ -54,7 +62,7 @@ export const MushroomMap = ({
             closePopupOnClick={false}
             className={`h-full w-full z-10 ${isAddingMode ? "cursor-crosshair" : ""}`}
         >
-            <BoundsListener search={search} onLocationChange={onLocationChange}/>
+            <BoundsListener search={search} onLocationChange={onLocationChange} />
             <TileLayer
                 attribution="&copy; OpenStreetMap contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -62,15 +70,19 @@ export const MushroomMap = ({
 
             <MapEvents onMapClick={handleMapClick} />
 
-            {locations.map((location, index) => (
-                <MapMarker
-                    key={location.data.publicId || `${location.data.lat}-${location.data.lng}-${index}`}
-                    location={location.data}
-                    permissions={location.meta}
-                    index={index}
-                    onDelete={onDeleteLocation}
-                />
-            ))}
+            {heatMapEnabled ? (
+                <HeatmapLayer points={heatmapPoints} />
+            ) : (
+                locations.map((location, index) => (
+                    <MapMarker
+                        key={location.data.publicId || `${location.data.lat}-${location.data.lng}-${index}`}
+                        location={location.data}
+                        permissions={location.meta}
+                        index={index}
+                        onDelete={onDeleteLocation}
+                    />
+                ))
+            )}
 
             {tempCoords && (
                 <Marker
