@@ -36,17 +36,8 @@ public static class Endpoints
         group.MapGet("get-locations",
             async ([AsParameters] GetLocationRequest request, IMediator mediator, CancellationToken cancellationToken) =>
             {
-                var (response, permissions) = await mediator.Send(new GetLocationQuery(request), cancellationToken);
-                return ApiResponse.Ok(response,
-                    itemMetaDataAction: (item, md) =>
-                    {
-                        var location = (LocationListItemDto)item;
-                        var permission = permissions[location.PublicId];
-
-                        md.canView = permission.CanView;
-                        md.canEdit = permission.CanEdit;
-                        md.canDelete = permission.CanDelete;
-                    });
+                var response = await mediator.Send(new GetLocationQuery(request), cancellationToken);
+                return ApiResponse.Ok(response);
             })
             .RequireAuthorization(Permissions.Locations.View.Code)
             .Produces<Response<IEnumerable<LocationListItemDto>>>(StatusCodes.Status200OK)
