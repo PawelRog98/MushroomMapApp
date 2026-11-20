@@ -6,6 +6,7 @@ using MushroomMapApp.Features.Locations.CreateLocation;
 using MushroomMapApp.Features.Locations.GetLocations;
 using MushroomMapApp.Features.Locations.UpdateLocation;
 using MushroomMapApp.Features.Locations.DeleteLocation;
+using MushroomMapApp.Features.Locations.GetClusterLocations;
 using MushroomMapApp.Shared.Response;
 
 namespace MushroomMapApp.Features.Locations;
@@ -77,6 +78,37 @@ public static class Endpoints
             .Produces<ErrorResponse>(StatusCodes.Status400BadRequest)
             .Produces<ErrorResponse>(StatusCodes.Status403Forbidden)
             .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
+
+        group.MapGet("get-cluster-locations",
+            async ([AsParameters] GetClusterLocationsRequest request, IMediator mediator,
+                CancellationToken cancellationToken) =>
+            {
+                var response = await mediator.Send(new GetClusterLocationsQuery(request), cancellationToken);
+
+                return ApiResponse.Ok(response.Items,
+                    metaDataAction: md =>
+                    {
+                        md.totalCount = response.TotalCount;
+                        md.currentPage = response.Page;
+                        md.pageSize = response.PageSize;
+                        md.totalPages = (int)Math.Ceiling(
+                            response.TotalCount / (double)response.PageSize);
+                        md.hasPrevious = response.Page > 1;
+                        md.hasNext = response.Page < md.totalPages;
+                    },
+                    itemMetaDataAction: (item, md) =>
+                    {
+                        var dto = (LocationListItemDto)item;
+                        var permission = response.Permissions[dto.PublicId];
+
+                        md.canView = permission.CanView;
+                        md.canEdit = permission.CanEdit;
+                        md.canDelete = permission.CanDelete;
+                    });
+            })
+            .RequireAuthorization(Permissions.Locations.View.Code)
+            .Produces<Response<IEnumerable<LocationListItemDto>>>(StatusCodes.Status200OK)
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
     }
 }
 

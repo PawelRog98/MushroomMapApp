@@ -9,7 +9,7 @@ namespace MushroomMap.IntegrationTests.Helpers;
 public static class ApiEndpointsExtensions
 {
     public const string WorldBoundingBox =
-        "/api/locations/get-locations?west=-180&east=180&south=-90&north=90";
+        "/api/locations/get-locations?west=-180&east=180&south=-90&north=90&zoom=16";
 
     public static async Task<LocationDto> CreateLocationAsync(
         this HttpClient client,
@@ -30,9 +30,12 @@ public static class ApiEndpointsExtensions
         return content.Data!;
     }
 
-    public static async Task<List<LocationItem>> GetLocationsAsync(this HttpClient client, string? search = null)
+    public static async Task<MapLocationsPayload> GetMapLocationsAsync(
+        this HttpClient client,
+        string? search = null,
+        int zoom = MapGrid.MaxZoom)
     {
-        var url = WorldBoundingBox;
+        var url = $"/api/locations/get-locations?west=-180&east=180&south=-90&north=90&zoom={zoom}";
         if (!string.IsNullOrEmpty(search))
             url += $"&search={Uri.EscapeDataString(search)}";
 
@@ -42,7 +45,46 @@ public static class ApiEndpointsExtensions
         var payload = await response.ReadApiPayloadAsync();
         payload.GetProperty("success").GetBoolean().Should().BeTrue();
 
-        return payload.GetProperty("data").ToObject<List<LocationItem>>()!;
+        return payload.GetProperty("data").ToObject<MapLocationsPayload>()!;
+    }
+
+    public static async Task<List<LocationItem>> GetLocationsAsync(this HttpClient client, string? search = null)
+    {
+        var result = await client.GetMapLocationsAsync(search);
+        return result.Markers;
+    }
+
+    public static async Task<ClusterLocationsPage> GetClusterLocationsAsync(
+        this HttpClient client,
+        long cellX,
+        long cellY,
+        int zoom = MapGrid.MaxZoom,
+        string? search = null,
+        int page = 1,
+        int pageSize = 25)
+    {
+        var url = $"/api/locations/get-cluster-locations?cellX={cellX}&cellY={cellY}&zoom={zoom}&page={page}&pageSize={pageSize}";
+        if (!string.IsNullOrEmpty(search))
+            url += $"&search={Uri.EscapeDataString(search)}";
+
+        var response = await client.GetAsync(url);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var payload = await response.ReadApiPayloadAsync();
+        payload.GetProperty("success").GetBoolean().Should().BeTrue();
+
+        var metadata = payload.GetProperty("metaData");
+
+        return new ClusterLocationsPage
+        {
+            Items = payload.GetProperty("data").ToObject<List<LocationItem>>()!,
+            TotalCount = metadata.GetProperty("totalCount").GetInt32(),
+            CurrentPage = metadata.GetProperty("currentPage").GetInt32(),
+            PageSize = metadata.GetProperty("pageSize").GetInt32(),
+            TotalPages = metadata.GetProperty("totalPages").GetInt32(),
+            HasPrevious = metadata.GetProperty("hasPrevious").GetBoolean(),
+            HasNext = metadata.GetProperty("hasNext").GetBoolean()
+        };
     }
 
     public static async Task<List<ReactionTypeDto>> GetReactionTypesAsync(this HttpClient client)

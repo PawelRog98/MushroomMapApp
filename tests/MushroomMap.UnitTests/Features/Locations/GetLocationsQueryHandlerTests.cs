@@ -31,7 +31,8 @@ public class GetLocationsQueryHandlerTests : IDisposable
 
         _evaluatorMock
             .Setup(x => x.Evaluate(It.IsAny<IEnumerable<LocationEntity>>(), It.IsAny<LocationPermissionContext>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<Guid, LocationPermissionResult>());
+            .ReturnsAsync((IEnumerable<LocationEntity> locations, LocationPermissionContext _, CancellationToken _) =>
+                locations.ToDictionary(x => x.PublicId, _ => new LocationPermissionResult { CanView = true }));
 
         _handler = new GetLocationQueryHandler(_context, _evaluatorMock.Object, _contextFactoryMock.Object);
     }
@@ -39,6 +40,9 @@ public class GetLocationsQueryHandlerTests : IDisposable
     public void Dispose() => _context.Dispose();
 
     private static Point CreatePoint(double lng, double lat) => new(lng, lat);
+
+    private static GetLocationRequest WorldRequest(string? search = null, int zoom = MapGrid.MaxZoom)
+        => new(search, -90, -180, 90, 180, zoom);
 
     private async Task<LocationEntity> SeedLocationAsync(string name, double lng, double lat, long createdById)
     {
@@ -65,18 +69,21 @@ public class GetLocationsQueryHandlerTests : IDisposable
     }
 
     [Fact]
-    public async Task Handle_ReturnsLocations_WithinBoundingBox()
+    public async Task Handle_InMarkersMode_ReturnsLocationsWithinBoundingBox()
     {
         await SeedLocationAsync("Inside", 19.0, 50.0, 1);
 
-        var query = new GetLocationQuery(new GetLocationRequest(null, -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest());
 
-        var (items, permissions) = await _handler.Handle(query, CancellationToken.None);
+        var response = await _handler.Handle(query, CancellationToken.None);
 
-        items.Should().ContainSingle();
-        items.First().Name.Should().Be("Inside");
-        items.First().Lat.Should().Be(50.0);
-        items.First().Lng.Should().Be(19.0);
+        response.Mode.Should().Be("markers");
+        response.TotalCount.Should().Be(1);
+        response.Truncated.Should().BeFalse();
+        response.Markers.Should().ContainSingle();
+        response.Markers.First().Data.Name.Should().Be("Inside");
+        response.Markers.First().Data.Lat.Should().Be(50.0);
+        response.Markers.First().Data.Lng.Should().Be(19.0);
     }
 
     [Fact]
@@ -85,24 +92,28 @@ public class GetLocationsQueryHandlerTests : IDisposable
         await SeedLocationAsync("Mushroom spot", 19.0, 50.0, 1);
         await SeedLocationAsync("Other place", 19.0, 50.0, 1);
 
-        var query = new GetLocationQuery(new GetLocationRequest("Mushroom", -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest("Mushroom"));
 
-        var (items, _) = await _handler.Handle(query, CancellationToken.None);
+        var response = await _handler.Handle(query, CancellationToken.None);
 
-        items.Should().ContainSingle();
-        items.First().Name.Should().Be("Mushroom spot");
+        response.Markers.Should().ContainSingle();
+        response.Markers.First().Data.Name.Should().Be("Mushroom spot");
+        response.TotalCount.Should().Be(1);
     }
 
     [Fact]
-    public async Task Handle_ReturnsEmptyList_WhenNoLocationsMatch()
+    public async Task Handle_ReturnsEmptyMarkers_WhenNoLocationsMatch()
     {
         await SeedLocationAsync("Mushroom spot", 19.0, 50.0, 1);
 
-        var query = new GetLocationQuery(new GetLocationRequest("NonExistent", -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest("NonExistent"));
 
-        var (items, _) = await _handler.Handle(query, CancellationToken.None);
+        var response = await _handler.Handle(query, CancellationToken.None);
 
-        items.Should().BeEmpty();
+        response.Mode.Should().Be("markers");
+        response.Markers.Should().BeEmpty();
+        response.TotalCount.Should().Be(0);
+        response.Truncated.Should().BeFalse();
     }
 
     [Fact]
@@ -110,13 +121,13 @@ public class GetLocationsQueryHandlerTests : IDisposable
     {
         var location = await SeedLocationAsync("Test", 19.0, 50.0, 1);
 
-        var query = new GetLocationQuery(new GetLocationRequest(null, -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest());
 
-        var (items, _) = await _handler.Handle(query, CancellationToken.None);
+        var response = await _handler.Handle(query, CancellationToken.None);
 
-        items.Should().ContainSingle();
-        items.First().AuthorName.Should().Be("author");
-        items.First().AuthorPublicId.Should().Be(location.CreatedBy.PublicId);
+        response.Markers.Should().ContainSingle();
+        response.Markers.First().Data.AuthorName.Should().Be("author");
+        response.Markers.First().Data.AuthorPublicId.Should().Be(location.CreatedBy.PublicId);
     }
 
     [Fact]
@@ -147,19 +158,19 @@ public class GetLocationsQueryHandlerTests : IDisposable
         _context.FileResources.Add(image);
         await _context.SaveChangesAsync();
 
-        var query = new GetLocationQuery(new GetLocationRequest(null, -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest());
 
-        var (items, _) = await _handler.Handle(query, CancellationToken.None);
+        var response = await _handler.Handle(query, CancellationToken.None);
 
-        items.Should().ContainSingle();
-        items.First().Images.Should().ContainSingle();
-        items.First().Images.First().PublicId.Should().Be(image.PublicId);
-        items.First().Images.First().ThumbnailUrl.Should().Be("thumb.jpg");
-        items.First().Images.First().ContentType.Should().Be("image/jpeg");
+        var item = response.Markers.Should().ContainSingle().Subject.Data;
+        item.Images.Should().ContainSingle();
+        item.Images.First().PublicId.Should().Be(image.PublicId);
+        item.Images.First().ThumbnailUrl.Should().Be("thumb.jpg");
+        item.Images.First().ContentType.Should().Be("image/jpeg");
     }
 
     [Fact]
-    public async Task Handle_ReturnsPermissions_ForLocations()
+    public async Task Handle_ReturnsPermissions_ForMarkers()
     {
         var location = await SeedLocationAsync("Test", 19.0, 50.0, 1);
 
@@ -172,14 +183,71 @@ public class GetLocationsQueryHandlerTests : IDisposable
             .Setup(x => x.Evaluate(It.IsAny<IEnumerable<LocationEntity>>(), It.IsAny<LocationPermissionContext>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(permissions);
 
-        var query = new GetLocationQuery(new GetLocationRequest(null, -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest());
 
-        var (_, resultPermissions) = await _handler.Handle(query, CancellationToken.None);
+        var response = await _handler.Handle(query, CancellationToken.None);
 
-        resultPermissions.Should().ContainKey(location.PublicId);
-        resultPermissions[location.PublicId].CanView.Should().BeTrue();
-        resultPermissions[location.PublicId].CanEdit.Should().BeTrue();
-        resultPermissions[location.PublicId].CanDelete.Should().BeFalse();
+        var meta = response.Markers.Should().ContainSingle().Subject.Meta as LocationPermissionResult;
+        meta.Should().NotBeNull();
+
+        var permission = meta!;
+        permission.CanView.Should().BeTrue();
+        permission.CanEdit.Should().BeTrue();
+        permission.CanDelete.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Handle_ReturnsClusters_WhenZoomIsBelowThreshold()
+    {
+        await SeedLocationAsync("Nearby A", 19.0, 50.0, 1);
+        await SeedLocationAsync("Nearby B", 19.001, 50.001, 1);
+        await SeedLocationAsync("Far away", 20.0, 51.0, 1);
+
+        var zoom = MapGrid.DefaultZoom;
+        var query = new GetLocationQuery(WorldRequest(zoom: zoom));
+
+        var response = await _handler.Handle(query, CancellationToken.None);
+
+        response.Mode.Should().Be("clusters");
+        response.TotalCount.Should().Be(3);
+        response.Markers.Should().BeEmpty();
+        response.Clusters.Should().HaveCount(2);
+
+        var cluster = response.Clusters.Single(x => x.Count == 2);
+        cluster.Zoom.Should().Be(zoom);
+        cluster.South.Should().Be(50.0);
+        cluster.North.Should().Be(50.001);
+        cluster.West.Should().Be(19.0);
+        cluster.East.Should().Be(19.001);
+        cluster.Lat.Should().BeApproximately(50.0005, 0.0001);
+        cluster.Lng.Should().BeApproximately(19.0005, 0.0001);
+        cluster.CellX.Should().Be((long)Math.Floor(19.0 / MapGrid.CellSizeDegrees(zoom)));
+        cluster.CellY.Should().Be((long)Math.Floor(50.0 / MapGrid.CellSizeDegrees(zoom)));
+    }
+
+    [Fact]
+    public async Task Handle_ReturnsMarkers_WhenZoomIsAtThreshold()
+    {
+        await SeedLocationAsync("Boundary", 19.0, 50.0, 1);
+
+        var query = new GetLocationQuery(WorldRequest(zoom: MapGrid.ClusterZoomThreshold));
+
+        var response = await _handler.Handle(query, CancellationToken.None);
+
+        response.Mode.Should().Be("markers");
+        response.Markers.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task Handle_DoesNotEvaluatePermissions_InClustersMode()
+    {
+        await SeedLocationAsync("Test", 19.0, 50.0, 1);
+
+        var query = new GetLocationQuery(WorldRequest(zoom: MapGrid.DefaultZoom));
+
+        await _handler.Handle(query, CancellationToken.None);
+
+        _contextFactoryMock.Verify(x => x.Create(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -187,7 +255,7 @@ public class GetLocationsQueryHandlerTests : IDisposable
     {
         await SeedLocationAsync("Test", 19.0, 50.0, 1);
 
-        var query = new GetLocationQuery(new GetLocationRequest(null, -90, -180, 90, 180));
+        var query = new GetLocationQuery(WorldRequest());
 
         await _handler.Handle(query, CancellationToken.None);
 
