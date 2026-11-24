@@ -3,20 +3,29 @@ import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import type { Marker as LeafletMarker } from "leaflet";
 import { useMapClick } from "../hooks/useMap";
 import { MapMarker } from "./MapMarker";
+import { ClusterMarker } from "./ClusterMarker";
 import { NewMarkerPopup } from "./NewMarkerPopup";
-import type { Location, LocationPermissions } from "../types";
+import type { HeatmapPoint, Location, LocationCluster, LocationPermissions, MapLocationResponse } from "../types";
 import { BoundsListener } from "./BoundsListener";
 import type { ItemWithMeta } from "../../../types/api";
 import { HeatmapLayer } from "./HeatmapLayer";
+import { MapEffects } from "./MapEffects";
 
 export type MushroomMapProps = {
-    locations: ItemWithMeta<Location, LocationPermissions>[];
+    locations: MapLocationResponse;
     isAddingMode: boolean;
     search?: string | null;
     heatMapEnabled: boolean;
+    focusedLocation: ItemWithMeta<Location, LocationPermissions> | null;
+    focusToken?: number;
+    flyTo: { lat: number; lng: number } | null;
+    fitBoundsTarget: LocationCluster | null;
     onAddingComplete: () => void;
     onDeleteLocation: (id: string | null, lat: number, lng: number) => void;
-    onLocationChange: (locations: ItemWithMeta<Location, LocationPermissions>[]) => void;
+    onLocationChange: (locations: MapLocationResponse) => void;
+    onClusterClick: (cluster: LocationCluster) => void;
+    onFlyHandled: () => void;
+    onFitBoundsHandled: () => void;
 };
 
 const MapEvents = ({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) => {
@@ -29,9 +38,16 @@ export const MushroomMap = ({
     isAddingMode,
     search,
     heatMapEnabled,
+    focusedLocation,
+    focusToken = 0,
+    flyTo,
+    fitBoundsTarget,
     onAddingComplete,
     onDeleteLocation,
-    onLocationChange
+    onLocationChange,
+    onClusterClick,
+    onFlyHandled,
+    onFitBoundsHandled
 }: MushroomMapProps) => {
     const [tempCoords, setTempCoords] = useState<{ lat: number; lng: number } | null>(null);
     const newMarkerRef = useRef<LeafletMarker>(null);
@@ -45,10 +61,23 @@ export const MushroomMap = ({
         [isAddingMode],
     );
 
-    const heatmapPoints = useMemo(
-        () => locations.filter((l) => l.meta.canView).map((l) => l.data),
-        [locations],
-    );
+    const heatmapPoints = useMemo<HeatmapPoint[]>(() => {
+        if (locations.mode === "clusters") {
+            return locations.clusters.map((c) => ({
+                lat: c.lat,
+                lng: c.lng,
+                weight: c.count,
+            }));
+        }
+
+        return locations.markers
+            .filter((m) => m.meta.canView)
+            .map((m) => ({
+                lat: m.data.lat,
+                lng: m.data.lng,
+                weight: 1,
+            }));
+    }, [locations]);
 
     const resetAdding = useCallback(() => {
         setTempCoords(null);
@@ -68,20 +97,45 @@ export const MushroomMap = ({
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
+            <MapEffects
+                flyTo={flyTo}
+                fitBoundsTarget={fitBoundsTarget}
+                onFlyHandled={onFlyHandled}
+                onFitBoundsHandled={onFitBoundsHandled}
+            />
+
             <MapEvents onMapClick={handleMapClick} />
 
             {heatMapEnabled ? (
                 <HeatmapLayer points={heatmapPoints} />
-            ) : (
-                locations.map((location, index) => (
-                    <MapMarker
-                        key={location.data.publicId || `${location.data.lat}-${location.data.lng}-${index}`}
-                        location={location.data}
-                        permissions={location.meta}
-                        index={index}
-                        onDelete={onDeleteLocation}
+            ) : locations.mode === "clusters" ? (
+                locations.clusters.map((cluster) => (
+                    <ClusterMarker
+                        key={`${cluster.zoom}:${cluster.cellX}:${cluster.cellY}`}
+                        cluster={cluster}
+                        onClick={onClusterClick}
                     />
                 ))
+            ) : (
+                locations.markers.filter((m) => m.data.publicId !== focusedLocation?.data.publicId)
+                    .map((location) => (
+                        <MapMarker
+                            key={location.data.publicId ?? `${location.data.lat}-${location.data.lng}`}
+                            location={location.data}
+                            permissions={location.meta}
+                            onDelete={onDeleteLocation}
+                        />
+                    ))
+            )}
+
+            {focusedLocation && (
+                <MapMarker
+                    key={`focus-${focusedLocation.data.publicId ?? `${focusedLocation.data.lat}-${focusedLocation.data.lng}`}-${focusToken}`}
+                    location={focusedLocation.data}
+                    permissions={focusedLocation.meta}
+                    autoOpen
+                    onDelete={onDeleteLocation}
+                />
             )}
 
             {tempCoords && (

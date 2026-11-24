@@ -1,6 +1,7 @@
 import { Marker, Popup } from "react-leaflet";
 import { Trash2, Loader2, AlertCircle, Pencil } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Marker as LeafletMarker } from "leaflet";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import type { MapMarkerProps } from "../types";
@@ -9,9 +10,11 @@ import { useImage } from "../../files/hooks/useImage";
 import { EditMapMarkerPopup } from "./EditMarkerPopup";
 import { Link } from "react-router-dom";
 
-export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerProps) => {
+export const MapMarker = ({ location, permissions, autoOpen, onDelete }: MapMarkerProps) => {
     const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const markerRef = useRef<LeafletMarker>(null);
     
     const activeImage = activeImageIndex !== null ? location.images[activeImageIndex] : null;
 
@@ -28,6 +31,12 @@ export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerP
                 URL.revokeObjectURL(imageUrl);
         };
     }, [imageUrl]);
+
+    useEffect(() => {
+        if (autoOpen) {
+            markerRef.current?.openPopup();
+        }
+    }, [autoOpen]);
 
     const open = !!imageUrl;
 
@@ -50,11 +59,18 @@ export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerP
     return (
         <>
             <Marker
-                key={location.publicId || `${location.lat}-${location.lng}-${index}`}
+                ref={markerRef}
                 position={[location.lat, location.lng]}
+                eventHandlers={{
+                    popupopen: () => setPopupOpen(true),
+                    popupclose: () => {
+                        setPopupOpen(false);
+                        setIsEditing(false);
+                    },
+                }}
             >
                 <Popup>
-                    {isEditing ? (
+                    {popupOpen && (isEditing ? (
                         <EditMapMarkerPopup 
                             location={location}
                             onSaveSuccess={() => setIsEditing(false)}
@@ -115,7 +131,7 @@ export const MapMarker = ({ location, permissions, index, onDelete }: MapMarkerP
                             </div>
                         )}
                         <ReactionRow locationPublicId={location.publicId!} />
-                    </div>)}
+                    </div>))}
                 </Popup>
             </Marker>
             <Lightbox

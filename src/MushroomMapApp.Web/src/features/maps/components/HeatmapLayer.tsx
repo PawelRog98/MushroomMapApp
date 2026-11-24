@@ -20,7 +20,13 @@ export const HeatmapLayer = ({points, radius = 25, blur =12, maxZoom = 16} : Hea
         if(points.length === 0)
             return;
 
-        const latLngs: [number, number, number][] = points.map(({ lat, lng }) => [lat, lng, 1]);
+        const maxWeight = Math.max(1, ...points.map(({ weight }) => weight ?? 1));
+
+        const latLngs: [number, number, number][] = points.map(({ lat, lng, weight }) => [
+            lat,
+            lng,
+            (weight ?? 1) / maxWeight,
+        ]);
 
         const layer = L.heatLayer(latLngs, {
             radius,

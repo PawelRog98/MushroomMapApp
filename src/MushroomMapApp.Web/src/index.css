@@ -48,3 +48,30 @@ html, body, #root {
     width: 100%;
     height: 100%;
 }
+
+/* Cluster count bubble rendered by Leaflet as a divIcon. */
+.leaflet-marker-icon.cluster-marker {
+    background: none;
+    border: 0;
+    box-shadow: none;
+}
+
+.cluster-marker-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 2px solid #fff;
+    border-radius: 9999px;
+    background: var(--color-forest-600);
+    color: #fff;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: background-color 120ms ease;
+    user-select: none;
+}
+
+.cluster-marker-inner:hover {
+    background: var(--color-forest-700);
+}

@@ -1,10 +1,10 @@
-import type { ResourcePermissions } from "../../../types/api";
+import type { ItemWithMeta, PagingMeta, ResourcePermissions } from "../../../types/api";
 
 export type MapMarkerProps = {
     location: Location;
     permissions: LocationPermissions
-    index: number;
     onDelete: (id: string | null, lat: number, lng: number) => void;
+    autoOpen?: boolean;
 };
 
 export type NewMarkerPopupProps = {
@@ -20,8 +20,15 @@ export type EditMarkerPopupProps = {
     onCancel: () => void;
 }
 
+
+export type HeatmapPoint = {
+    lat: number;
+    lng: number;
+    weight?: number;
+};
+
 export type HeatmapLayerProps = {
-    points: Location[];
+    points: HeatmapPoint[];
     radius?: number;
     blur?: number;
     maxZoom?: number;
@@ -41,6 +48,37 @@ export type GetLocationRequest = {
     west: number;
     north: number;
     east: number;
+    zoom: number;
+}
+
+export type LocationCluster = {
+    lat: number;
+    lng: number;
+    count: number;
+    south: number;
+    west: number;
+    north: number;
+    east: number;
+    zoom: number;
+    cellX: number;
+    cellY: number;
+}
+
+export type MapLocationResponse = {
+    mode: "markers" | "clusters";
+    totalCount: number;
+    truncated: boolean;
+    markers: ItemWithMeta<Location, LocationPermissions>[];
+    clusters: LocationCluster[];
+};
+
+export type GetClusterLocationRequest = {
+    cellX: number;
+    cellY: number;
+    zoom: number;
+    search: string | null;
+    page: number;
+    pageSize: number;
 }
 
 export type UpdateLocationRequest = {
@@ -49,6 +87,11 @@ export type UpdateLocationRequest = {
     images: File[];
     keepImageIds: string[];
 };
+
+export type ClusterLocationResponse = {
+    items: ItemWithMeta<Location, LocationPermissions>[];
+    paging: PagingMeta;
+}
 
 export type Image = {
     publicId: string;

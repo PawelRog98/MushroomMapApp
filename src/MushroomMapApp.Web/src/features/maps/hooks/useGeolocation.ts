@@ -18,7 +18,6 @@ export const useGeolocation = () => {
     });
 
     const locate = useCallback(() => {
-        // Check if geolocation is supported
         if (!navigator.geolocation) {
             setState((prev) => ({
                 ...prev,
@@ -27,7 +26,6 @@ export const useGeolocation = () => {
             return;
         }
 
-        // Check if page is served over HTTPS (required for geolocation)
         if (window.location.protocol !== "https:" && window.location.hostname !== "localhost") {
             setState((prev) => ({
                 ...prev,

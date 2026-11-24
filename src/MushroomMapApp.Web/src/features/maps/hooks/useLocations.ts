@@ -1,13 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { GetLocationRequest } from "../types";
 import { locationsApi } from "../api/locations";
 
 export const useLocations = (filters: GetLocationRequest) => {
     return useQuery({
-        queryKey: ["locations", filters],
-        queryFn: () => locationsApi.getLocations(filters),
-        placeholderData: (previous) => previous,
-        staleTime: 30000, // 30 seconds - prevent refetching on window focus
+        queryKey: ["locations", 
+            "map",  
+            filters.east,
+            filters.north,
+            filters.search,
+            filters.south,
+            filters.west,
+            filters.zoom
+        ],
+        queryFn: ({signal}) => locationsApi.getLocations(filters, signal),
+        placeholderData: keepPreviousData,
+        staleTime: 30000,
         refetchOnWindowFocus: false,
     });
 };
