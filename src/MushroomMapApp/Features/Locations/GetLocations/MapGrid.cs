@@ -9,9 +9,11 @@ public class MapGrid
     public const int MaxMarkers = 500;
     public const int MaxClusters = 500;
 
+    private const double MergeScale = 1.5;
+
     public static int ClampZoom(int zoom) =>
         Math.Clamp(zoom, MinZoom, MaxZoom);
 
     public static double CellSizeDegrees(int zoom) =>
-        90/ Math.Pow(2, ClampZoom(zoom));
+        90/ Math.Pow(2, ClampZoom(zoom)) * MergeScale;
 }
